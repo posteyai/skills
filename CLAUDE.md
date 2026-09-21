@@ -248,3 +248,48 @@ When adding a prompt to `postey-backend/app/core/mcp/prompts.py`:
 ## Commit & PR Guidelines
 
 - Do not add "Co-authored with Claude" or similar AI-assistant attributions to commit messages or PR descriptions.
+
+## Postey Estate Contract
+
+- This repository has no `dev` branch; its default base is `main`. Never create or target `dev`.
+- Program work branches from and targets `program/<name>` when this repo participates. Other work
+  uses a short-lived branch from `main` and targets `main` by PR.
+- Use the Postey workspace's `wt` command for worktrees. Never run `git worktree add` manually.
+- Never push or merge directly to `main`; open a PR and stop. Never bypass the pre-push rule with
+  `--no-verify`.
+- Only the owner may set a program's approval. If workspace-root `HALT` exists, do not claim new
+  work. DONE requires a merge and captured green verification.
+
+## Codex Setup And Verification
+
+```bash
+npm ci
+npm test
+node scripts/check-versions.js
+node scripts/check-leaks.js .
+node scripts/check-setup-links.mjs
+node scripts/check-setup-doc.mjs
+node scripts/gen-mcp-tools.js --check
+node scripts/check-capability-contract.js
+node scripts/check-script-parity.js
+node scripts/check-pack-discovery.js
+node scripts/check-cross-skill-links.js
+node scripts/check-capability-overlap.js
+node scripts/check-doc-commands.js
+```
+
+Run the live capability snapshot, server-card, and MCP sync checks only when their required server
+URL and credentials are available. A missing credential or soft skip is not a green live check.
+
+## Code Review Rules
+
+- Before a program merge or PR to `main`, run `/review` against the actual target base.
+- Compare the complete diff with its actual target base and approved program stage.
+- Preserve the capability ownership contract: the server owns live capability truth, MCP owns all
+  writes, and the CLI owns only local-machine operations. Reject a new CLI write path.
+- Keep skill metadata, plugin manifests, marketplace entries, pack manifests, registry entries,
+  release tags, generated MCP tool lists, and mirrored CLI copies synchronized.
+- Check every shipped reference exists inside the installed skill, every documented command exists,
+  and setup instructions are non-interactive for agent execution.
+- Reject secrets or private terms in shipped content, unauthenticated lookup results presented as
+  absence, weakened leak/version/capability gates, and direct pushes or merges to `main`.
