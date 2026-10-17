@@ -12,7 +12,7 @@ Index of all skills in this repository.
 | [postey-video](postey-video/) | Transcribe a video and cross-post it. Requires `postey` | stable | 1.0.2 |
 | [postey-voice](postey-voice/) | Learn the user's voice from published posts and draft verdicts. Requires `postey` | stable | 1.2.0 |
 | [postey-engagement](postey-engagement/) | Comment triage, replies and auto-DM funnels. Requires `postey` | stable | 1.1.0 |
-| [postey-analytics](postey-analytics/) | Performance reading and content recommendations. Requires `postey` | stable | 1.0.1 |
+| [postey-analytics](postey-analytics/) | Performance reading and content recommendations. Requires `postey` | stable | 1.0.2 |
 | [postey-ops](postey-ops/) | Publish-status checks, failure triage and queue health. Requires `postey` | stable | 1.0.1 |
 | [postey-teams](postey-teams/) | Review workflow, internal comments and share links. Requires `postey` | stable | 1.0.1 |
 
