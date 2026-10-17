@@ -117,7 +117,7 @@
       "name": "postey-analytics",
       "source": "./skills/postey-analytics",
       "description": "Analytics pack for Postey: read performance, say what it supports, and turn it into a recommendation. Requires the postey skill.",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"

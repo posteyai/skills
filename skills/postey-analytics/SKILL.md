@@ -1,6 +1,6 @@
 ---
 name: postey-analytics
-version: 1.0.1
+version: 1.0.2
 description: >
   Read what a post or an account actually did, say what the numbers support, and
   turn that into the next content decision. Includes the checks that stop a
@@ -60,7 +60,7 @@ confident reading of a broken feed is worse than saying nothing.
 | every metric is `0` across all posts on a platform | the feed is not returning, or the platform never provided it | say the platform reports nothing; do not rank by it |
 | impressions present, engagement all `0` | partial fetch | use impressions only, and name the limitation |
 | one post has numbers, its siblings do not | the others have not been fetched yet | compare only the ones that have data |
-| `fetch_count` is 0 | never collected | not "zero performance" — no data at all |
+| `last_updated` is null | not collected yet | no data, not zero performance |
 
 **Zero is not a result.** On a real account checked during development, every LinkedIn post
 reported zero impressions while the same content on X reported between 481 and 2,935. Ranking that
@@ -106,6 +106,10 @@ write to its ledger from here — say what you found and let the user decide.
 Per-post numbers: `postey://posts/{post_id}/analytics`. Account roll-up:
 `postey://accounts/{account_id}/analytics`. Ranked posts:
 `postey://accounts/{account_id}/analytics/posts`.
+
+Account figures cover the last 30 days, including today so far. Engagement rate is engagement
+divided by impressions, over the posts published in that window. Per-post numbers are the same
+numbers the app shows. A thread counts as one post.
 
 Whether a post **published at all** is not this skill's question — that is `postey-ops` and
 `post.publish_status`. A post that never went out has no performance to explain, and confusing the
