@@ -202,7 +202,7 @@ paths: <https://raw.githubusercontent.com/posteyai/skills/main/setup.md>. The ke
      `get_posts`) always use the tool.
 
 4. **Content validation or virality review** before publishing?
-   → **MCP tools** — `validate_post_content`, `review_post` — no CLI equivalent; do not skip these in any MCP-capable session.
+   → **MCP tools** — `validate_post_content`, `review_post` — no CLI equivalent; do not skip these in any MCP-capable session. `review_post` returns a `job_id` and runs 60-120 seconds; collect the result with `get_review_status` (by `job_id`, or `post_id` if the handle was lost), repeating while `status` is `running`.
 
 5. **All other writes** (create, update, publish, schedule, delete, tag, upload by URL)?
    → **MCP tools, in every environment** — `create_post`, `update_post`, `publish_draft`, `schedule_post`, `delete_draft`.
