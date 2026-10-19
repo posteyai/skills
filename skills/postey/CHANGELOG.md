@@ -4,6 +4,14 @@ All notable user-facing changes to the Postey skill and its CLI are documented h
 
 The format is based on Keep a Changelog.
 
+## postey-engagement 1.2.0
+
+**Automations are read-only over MCP.** `configure_auto_dm`, `configure_automation` and
+`remove_automation` were removed from the Postey MCP server (2.5.0). `postey-engagement` no longer
+owns `schedule.auto_dm`, no longer offers to set up comment-to-DM funnels, and points to the Postey
+app for changes. Listing running automations (`postey://accounts/{account_id}/automations`) is
+unchanged.
+
 ## 3.2.0
 
 **A project-local config can no longer authenticate you as somebody else.** `./.postey/config.json`

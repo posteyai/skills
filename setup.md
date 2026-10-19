@@ -502,7 +502,7 @@ wants — a pack the user never asked for is context they pay for on every turn.
 | `postey-ideas` | turn a trend or a rough idea into per-platform posts |
 | `postey-video` | transcribe a video and cross-post it, or post local video files |
 | `postey-voice` | have the agent learn how they write and keep matching it |
-| `postey-engagement` | reply to comments, or run comment-to-DM funnels |
+| `postey-engagement` | reply to comments, or see running automations |
 | `postey-analytics` | read what worked and decide what to make next |
 | `postey-ops` | check things actually published, and chase what failed |
 | `postey-teams` | send drafts for review before anything goes out |
