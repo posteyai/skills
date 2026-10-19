@@ -1,7 +1,7 @@
 {
   "_note": "GENERATED — do not hand-edit. Refresh with `node scripts/refresh-capability-snapshot.js` against a live server. This file is the single source the skill, the CLI and CI all derive capability from; a literal platform/tool list anywhere else is a regression (S9.5).",
   "generated_from": "postey://skill-manifest",
-  "server_version": "2.5.0",
+  "server_version": "3.0.0",
   "platforms": [
     "X",
     "LINKEDIN",
