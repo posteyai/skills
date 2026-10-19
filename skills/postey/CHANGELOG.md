@@ -13,7 +13,7 @@ and `postey-video`) now matches the server after the removal of `configure_auto_
 notes no longer list auto-DM among the plan-gated actions: auto-DM can no longer be armed through
 MCP or the CLI.
 
-## postey-engagement 1.2.0
+## postey-engagement 2.0.0 (breaking: auto-DM capability removed)
 
 **Automations are read-only over MCP.** `configure_auto_dm`, `configure_automation` and
 `remove_automation` were removed from the Postey MCP server (3.0.0). `postey-engagement` no longer

@@ -11,7 +11,7 @@ Index of all skills in this repository.
 | [postey-ideas](postey-ideas/) | Content-ideation flows: trends to posts, idea to posts. Requires `postey` | stable | 1.0.0 |
 | [postey-video](postey-video/) | Transcribe a video and cross-post it. Requires `postey` | stable | 1.0.3 |
 | [postey-voice](postey-voice/) | Learn the user's voice from published posts and draft verdicts. Requires `postey` | stable | 1.2.0 |
-| [postey-engagement](postey-engagement/) | Comment triage, replies and a read-only view of running automations. Requires `postey` | stable | 1.2.0 |
+| [postey-engagement](postey-engagement/) | Comment triage, replies and a read-only view of running automations. Requires `postey` | stable | 2.0.0 |
 | [postey-analytics](postey-analytics/) | Performance reading and content recommendations. Requires `postey` | stable | 1.0.1 |
 | [postey-ops](postey-ops/) | Publish-status checks, failure triage and queue health. Requires `postey` | stable | 1.0.1 |
 | [postey-teams](postey-teams/) | Review workflow, internal comments and share links. Requires `postey` | stable | 1.0.1 |
