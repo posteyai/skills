@@ -391,8 +391,8 @@ Never write the key into a file that a repository tracks. A container or a
 continuous-integration job should inject it as a secret, the same way as any other.
 The store holds it in plain text, so if it leaks, revoke it and create another.
 
-The plan still decides what the key can *do*. Publishing, scheduling, analytics and
-auto-DM are gated one by one, so a free-plan key connects and reads, then answers
+The plan still decides what the key can *do*. Publishing, scheduling and
+analytics are gated one by one, so a free-plan key connects and reads, then answers
 `402` on the call that needs a paid feature. That is a limit on the action, not on
 the key.
 
@@ -502,7 +502,7 @@ wants — a pack the user never asked for is context they pay for on every turn.
 | `postey-ideas` | turn a trend or a rough idea into per-platform posts |
 | `postey-video` | transcribe a video and cross-post it, or post local video files |
 | `postey-voice` | have the agent learn how they write and keep matching it |
-| `postey-engagement` | reply to comments, or run comment-to-DM funnels |
+| `postey-engagement` | reply to comments, or see running automations |
 | `postey-analytics` | read what worked and decide what to make next |
 | `postey-ops` | check things actually published, and chase what failed |
 | `postey-teams` | send drafts for review before anything goes out |
