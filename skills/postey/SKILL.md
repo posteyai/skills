@@ -1,6 +1,6 @@
 ---
 name: postey
-version: 3.2.0
+version: 3.2.1
 # No `platforms:` list. The platform set lives on the server and is mirrored into
 # capability-snapshot.json by scripts/refresh-capability-snapshot.js. A copy here
 # would be a fourth hand-maintained list agreeing with the other three and with
@@ -43,6 +43,7 @@ mcp-tools:
     - delete_draft
     - file_manager
     - get_posts
+    - get_review_status
     - get_schedule
     - link_cli
     - list_files
@@ -98,6 +99,7 @@ capabilities:
     - post.delete
     - post.convert
     - post.review
+    - post.review.status
     - post.validate
     - post.tag.add
     - post.tag.remove

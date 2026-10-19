@@ -116,7 +116,7 @@ helps a client that already has a credential and not one that is trying to get i
 the environment variable covers both surfaces at once; an OAuth-only track A install has
 no `POSTEY_API_KEY`, which is why local-file commands fail there until Step 5 sets one.
 
-The plan still decides what a key can *do*. Publishing, scheduling, analytics and auto-DM
+The plan still decides what a key can *do*. Publishing, scheduling and analytics
 are gated one at a time, so a free-plan key connects and reads, then answers `402` on the
 call that needs a paid feature. That is a limit on the action, not on the key.
 

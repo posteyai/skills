@@ -4,6 +4,15 @@ All notable user-facing changes to the Postey skill and its CLI are documented h
 
 The format is based on Keep a Changelog.
 
+## 3.2.1 (postey-video 1.0.3)
+
+**Refreshed capability snapshot.** The bundled `capability-snapshot.json` (shipped in both `postey`
+and `postey-video`) now matches the server after the removal of `configure_auto_dm`,
+`configure_automation` and `remove_automation`, and lists `post.review.status`
+(`get_review_status`), which the hub now owns next to `post.review`. The setup and authentication
+notes no longer list auto-DM among the plan-gated actions: auto-DM can no longer be armed through
+MCP or the CLI.
+
 ## postey-engagement 1.2.0
 
 **Automations are read-only over MCP.** `configure_auto_dm`, `configure_automation` and

@@ -391,8 +391,8 @@ Never write the key into a file that a repository tracks. A container or a
 continuous-integration job should inject it as a secret, the same way as any other.
 The store holds it in plain text, so if it leaks, revoke it and create another.
 
-The plan still decides what the key can *do*. Publishing, scheduling, analytics and
-auto-DM are gated one by one, so a free-plan key connects and reads, then answers
+The plan still decides what the key can *do*. Publishing, scheduling and
+analytics are gated one by one, so a free-plan key connects and reads, then answers
 `402` on the call that needs a paid feature. That is a limit on the action, not on
 the key.
 
