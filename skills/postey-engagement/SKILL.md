@@ -118,5 +118,6 @@ Automations are read-only here. Read the account's running automations
 or removing one is done in the Postey app, not through this server.
 
 An automation the user forgot about is still sending DMs in their name. When listing automations,
-name every active one, not just the one being asked about. The `running` flag is authoritative;
-`status` is not.
+name every active one, not just the one being asked about. For auto-DM rules and post actions the
+`running` flag is authoritative and `status` is not. Conversation `scripts` carry no `running`
+flag: read their `status` and `binding.state`.
