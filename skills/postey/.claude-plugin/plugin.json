@@ -1,5 +1,6 @@
 {
   "name": "postey",
+  "displayName": "Postey",
   "description": "Draft, schedule, and manage social media posts across X, LinkedIn, Instagram, TikTok, YouTube, Threads, Bluesky, Facebook, and Pinterest",
   "version": "3.2.1",
   "author": {
@@ -8,5 +9,11 @@
   },
   "homepage": "https://postey.ai",
   "repository": "https://github.com/posteyai/skills",
-  "license": "MIT"
+  "license": "MIT",
+  "skills": "./",
+  "icon": "./assets/icon.png",
+  "documentationUrl": "https://postey.ai/mcp",
+  "supportUrl": "https://postey.ai/policies/support",
+  "privacyPolicyUrl": "https://postey.ai/policies/privacy",
+  "termsOfServiceUrl": "https://postey.ai/policies/terms"
 }
