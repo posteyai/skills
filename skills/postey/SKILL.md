@@ -175,7 +175,7 @@ reachable. If the Postey tools are absent from your session, stop and say so. Th
 here that reaches Postey state, so looking for one wastes the user's time.
 
 Say what to do next, rather than only that you are stuck. The server address is
-`https://srvr.postey.ai/mcp`, registered natively in your own client — never behind a local
+`https://mcp.postey.ai/mcp`, registered natively in your own client — never behind a local
 bridge. A client that can open a browser finishes OAuth. A browserless one (CI, container, cron)
 cannot: there is no `client_credentials` grant, so it needs an MCP key (`mk_…`) sent as
 `X-API-Key`, and you cannot create that key yourself. Per-client registration commands and config

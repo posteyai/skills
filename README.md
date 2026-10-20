@@ -26,11 +26,11 @@ Works with Claude, Claude Code, Cursor, Windsurf, Codex, Gemini CLI, GitHub Copi
 Connect the hosted MCP server. Nothing to install, and connecting is free.
 
 ```
-https://srvr.postey.ai/mcp
+https://mcp.postey.ai/mcp
 ```
 
 ```bash
-claude mcp add --transport http postey https://srvr.postey.ai/mcp
+claude mcp add --transport http postey https://mcp.postey.ai/mcp
 ```
 
 Then ask your agent for what you want:
@@ -48,7 +48,7 @@ If you arrived here from an MCP registry, the server is what you want.
 
 | | |
 |---|---|
-| **Endpoint** | `https://srvr.postey.ai/mcp` |
+| **Endpoint** | `https://mcp.postey.ai/mcp` |
 | **Transport** | Streamable HTTP, hosted |
 | **Registry** | [`ai.postey/postey`](https://registry.modelcontextprotocol.io) in the official MCP Registry |
 | **Tools** | 33, plus MCP resources and prompts |
