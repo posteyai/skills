@@ -1,5 +1,6 @@
-# Not skills. Keep them out of a ClawHub import — slugs are first-come and
-# permanent, so a scaffold published once cannot be reclaimed.
+# Not skills. Slugs are first-come and permanent, so a scaffold published once
+# cannot be reclaimed. Only CLI publishes from the repo root read this file; the
+# web "Import from GitHub" and `clawhub sync` do not, so pick skills/<name> there.
 
 # The starter template every new skill is copied from. It has no content.
 skills/_template/

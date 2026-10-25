@@ -52,3 +52,32 @@ test('requiring the script does not run it', () => {
 	// its unconfigured soft-skip, which is why no test could drive its rules.
 	assert.strictEqual(typeof compare, 'function');
 });
+
+test('a conditionally listed tool absent from the card is expected, not drift', () => {
+	const problems = compare(
+		snap({ tools: ['create_post', 'get_posts', 'link_cli'] }),
+		card(),
+		{ link_cli: 'terminal agents only' }
+	);
+	assert.deepStrictEqual(problems, []);
+});
+
+test('the conditional list excuses only the tools it names', () => {
+	const problems = compare(
+		snap({ tools: ['create_post', 'get_posts', 'link_cli', 'get_post_by_share_link'] }),
+		card(),
+		{ link_cli: 'terminal agents only' }
+	);
+	assert.ok(problems.some((p) => /does not serve: get_post_by_share_link$/.test(p)), problems.join('\n'));
+});
+
+test('the shipped conditional list names only tools the snapshot grants', async () => {
+	const fs = await import('node:fs');
+	const { CONDITIONALLY_LISTED } = createRequire(import.meta.url)('../scripts/check-server-card.js');
+	const snapshot = JSON.parse(
+		fs.readFileSync(new URL('../skills/postey/capability-snapshot.json', import.meta.url), 'utf8')
+	);
+	for (const tool of Object.keys(CONDITIONALLY_LISTED)) {
+		assert.ok(snapshot.tools.includes(tool), `${tool} is excused but the snapshot does not name it`);
+	}
+});

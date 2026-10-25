@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "postey": {
-      "type": "http",
-      "url": "https://mcp.postey.ai/mcp"
-    }
-  }
-}

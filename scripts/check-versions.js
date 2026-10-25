@@ -84,10 +84,8 @@ if (skills.length === 0) {
 
 for (const { name: skill, dir: skillDir } of skills) {
   const skillMdPath = path.join(skillDir, 'SKILL.md');
-  const pluginJsonPath = path.join(skillDir, '.claude-plugin', 'plugin.json');
 
   const frontmatterVersion = parseFrontmatterVersion(skillMdPath);
-  const pluginJsonVersion = parsePluginJsonVersion(pluginJsonPath);
   const marketplaceVersion = parseMarketplaceVersion(marketplacePath, skill);
 
   if (!frontmatterVersion) {
@@ -104,7 +102,6 @@ for (const { name: skill, dir: skillDir } of skills) {
   const errorsBefore = errors;
   const isHub = skill === HUB_SKILL;
   const places = [
-    [`skills/${skill}/.claude-plugin/plugin.json`, pluginJsonVersion],
     ['.claude-plugin/marketplace.json', marketplaceVersion],
     [`skills/${skill}/pack.json`, parsePackJsonVersion(path.join(skillDir, 'pack.json'))],
     ['skills/REGISTRY.md', parseRegistryVersion(path.join(skillsDir, 'REGISTRY.md'), skill)],

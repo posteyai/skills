@@ -74,30 +74,34 @@ challenge rather than GitHub auth.
 
 ## Step 2 — ClawHub
 
-`clawhub skill publish ./skills/postey` is refused ("This looks like a plugin") because the
-folder holds `.claude-plugin/plugin.json`, and `clawhub package publish` wants a
-ClawHub-native plugin manifest we don't ship. Publish a staged copy without the Claude manifest. The
-dot-folders never upload anyway, so the published files are the same.
+Each `skills/<name>/` folder is a plain skill folder: no `.claude-plugin/`, no `.mcp.json`
+(the Claude Code plugin is defined by its entry in `.claude-plugin/marketplace.json`). So
+publish straight from the repo; no staging copy. `tests/plugin-layout.test.mjs` keeps it
+that way, because ClawHub refuses a folder holding a plugin manifest ("This looks like a
+plugin").
 
 ```bash
 npm i -g clawhub
 clawhub login          # opens a browser for GitHub OAuth
 clawhub whoami
 
-stage=$(mktemp -d)
-cp -R skills/postey "$stage/postey"
-rm -rf "$stage/postey/.claude-plugin"
-v=$(node -p "require('./skills/postey/pack.json').version")
-clawhub skill publish "$stage/postey" --slug postey --name "Postey" --version "$v" \
+s=postey               # or a pack: postey-video, postey-ideas, ...
+v=$(node -p "require('./skills/$s/pack.json').version")
+clawhub skill publish "skills/$s" --slug "$s" --version "$v" \
   --owner <postey-org-handle> \
   --source-repo posteyai/skills --source-commit "$(git rev-parse HEAD)" \
-  --source-ref main --source-path skills/postey \
-  --dry-run              # drop --dry-run once the preview says "Would publish postey@<v>"
+  --source-ref main --source-path "skills/$s" \
+  --dry-run              # drop --dry-run once the preview says "Would publish $s@<v>"
 ```
+
+Pass `--name "Postey"` for the hub. Always pass `--version`: without it ClawHub starts
+every skill at 1.0.0.
 
 Don't use `clawhub sync --all` from the repo root. Its folder scan ignores `.clawhubignore`,
 so it would also publish `skills/_template` under the permanent slug `template`, and it
-versions every skill from 1.0.0 instead of reading the real version.
+versions every skill from 1.0.0 instead of reading the real version. The same scan would
+also find the test fixtures under `tests/fixtures/` (`alpha`, `beta`, `absent`, `declared`,
+...), which are synthetic `SKILL.md` files for the repo's own checks.
 
 **Publish from an org account, not personal** — a personal-account listing reads as a
 third-party clone rather than the official Postey skill.
@@ -106,9 +110,10 @@ Publishes are held behind a prepublication worker (VirusTotal + code-pattern sca
 before going live, so expect a delay. Search is embedding-based, so the `description` and
 `when_to_use` fields in `SKILL.md` are what get you found — not tags.
 
-`clawhub.ai` also advertises "import from your GitHub" and has `/skills/publish` and
-`/plugins/publish` pages. If the browser path works, it skips the CLI entirely — check once
-you're signed in.
+`clawhub.ai` also has a web "Import from GitHub". It lists every `SKILL.md` in the repo as
+a candidate, including `skills/_template` and the `tests/fixtures/` ones, because the
+importer reads no ignore file (`.clawhubignore` only applies to CLI publishes). Pick
+`skills/<name>` by hand and nothing else. The CLI path above is the one that is verified.
 
 **Verify:** `clawhub search postey` returns the listing, and `clawhub.ai/skills/postey` loads.
 
@@ -138,11 +143,18 @@ has both; the packs have no README, so add one before submitting any of them.
 Pre-flight — already passing, re-run after any edit:
 
 ```bash
-claude plugin validate --strict ./skills/postey
+claude plugin validate --strict .
 ```
 
+`skills/postey` has no `plugin.json`: the plugin is defined by its marketplace entry so
+that the same folder can go to ClawHub. The portal therefore sees a manifest-less plugin
+folder (name from the folder, one skill, no bundled MCP server). That is why the connector
+below matters. The listing fields that used to live in `plugin.json` (`icon`,
+`documentationUrl`, `supportUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`) are kept under
+the entry's `metadata` in `marketplace.json`; enter them in the portal form.
+
 Each scanned commit is checked again, so later releases need no new submission. Raise
-`version` in `plugin.json` with every release, or the listing won't move. Also submit
+`version` with every release (`node scripts/set-version.mjs`), or the listing won't move. Also submit
 `https://mcp.postey.ai/mcp` separately as an **MCP connector**, which the portal expects
 for a plugin that references a remote server you run.
 

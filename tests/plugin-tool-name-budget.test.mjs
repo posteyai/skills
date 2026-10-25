@@ -78,8 +78,12 @@ export function checkToolNameBudget(pluginName, toolNames, retiredNames = []) {
 
 const snapshot = () =>
 	JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, 'capability-snapshot.json'), 'utf8'));
+// The hub has no plugin.json: its marketplace entry is the manifest, so the
+// entry name is both the install id and the tool prefix.
 const pluginJson = () =>
-	JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'), 'utf8'));
+	JSON.parse(fs.readFileSync(path.join(ROOT, '.claude-plugin', 'marketplace.json'), 'utf8')).plugins.find(
+		(p) => p.source === './skills/postey'
+	);
 
 // The four names N4 renamed away. Kept here, not derived, because their whole
 // purpose is to be absent: deriving them from the same file they are meant to
@@ -96,9 +100,8 @@ test('the shipped plugin and tool list meet the gate', () => {
 });
 
 test('the marketplace entry names the same plugin', () => {
-	// Two files declare the plugin name. Claude Code reads the marketplace entry
-	// to install and plugin.json to run, so a disagreement installs one thing and
-	// prefixes another.
+	// The entry name is both the install id and the tool prefix, so it has to be
+	// the server slug.
 	const marketplace = JSON.parse(
 		fs.readFileSync(path.join(ROOT, '.claude-plugin', 'marketplace.json'), 'utf8')
 	);
