@@ -61,8 +61,8 @@ mcp-publisher publish
 ```
 
 `server.json` is already written and validates against the published `2025-12-11` schema.
-Its `version` must equal `MCP_SERVER_VERSION` in MarqetiveBackendV2 `app/core/mcp/server.py`
-(the live server's `serverInfo.version`). Bump both together; the registry rejects republishing
+Its `version` must equal the live server's `serverInfo.version`
+(`curl -s https://mcp.postey.ai/.well-known/mcp/server-card.json`). Bump both together; the registry rejects republishing
 an existing version, so a mismatch cannot be fixed later under the same number.
 Namespace: `ai.postey/postey` — reverse DNS of `postey.ai`, which is why this needs the DNS
 challenge rather than GitHub auth.
