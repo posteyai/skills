@@ -24,6 +24,18 @@ test('the repo has at least one skill to check', () => {
 });
 
 for (const { name, dir: ROOT } of skills) {
+  // Claude Code installs plugin.json `dependencies` alongside the plugin, so a pack
+  // installed on its own still gets the hub (and its MCP server).
+  test(`${name}: plugin.json dependencies match SKILL.md requires`, () => {
+    const plugin = JSON.parse(
+      fs.readFileSync(path.join(ROOT, '.claude-plugin', 'plugin.json'), 'utf8')
+    );
+    const fm = fs.readFileSync(path.join(ROOT, 'SKILL.md'), 'utf8').match(/^---\s*\n([\s\S]*?)\n---/)[1];
+    const block = fm.match(/^requires:\s*\n((?:[ \t]+-[^\n]*\n?)*)/m);
+    const requires = block ? [...block[1].matchAll(/-\s+(\S+)/g)].map(m => m[1]).sort() : [];
+    assert.deepStrictEqual([...(plugin.dependencies || [])].sort(), requires);
+  });
+
   test(`${name}: ships a pack.json (the fetch-install channel needs one)`, () => {
     assert.ok(fs.existsSync(path.join(ROOT, 'pack.json')), `skills/${name}/pack.json missing`);
   });

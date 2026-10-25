@@ -55,8 +55,8 @@ remote server, so install and connect are one step. OAuth means no secret is emb
 | # | Target | Mechanism | Status |
 |---|---|---|---|
 | 1 | **Official MCP Registry** | `mcp-publisher` + `server.json`, DNS auth | ready — not submitted |
-| 2 | **ClawHub** | `clawhub skill publish` | ready — not submitted |
-| 3 | **Claude Code community marketplace** | in-app submission form | ready — not submitted |
+| 2 | **ClawHub** | `clawhub skill publish` (staged copy, see RUNBOOK) | ready — not submitted (2026-10-25: `postey` slug free; Postiz listed) |
+| 3 | **Anthropic plugin directory** | developer portal `claude.ai/directory/manage` | ready — not submitted (2026-10-25: Postiz is in both `claude-plugins-official` and `-community`) |
 | 4 | **awesome-mcp-servers / mcpservers.org** | pull request | not submitted |
 | 5 | **Context7** | `context7.com/add-library` | not submitted |
 | 6 | **Glama** | auto-indexes public GitHub | passive |
@@ -77,19 +77,20 @@ does the most work.
 
 **2. ClawHub.** Embedding-based search, so `description` and `when_to_use` in `SKILL.md`
 matter more than keywords. Requires a GitHub account old enough to clear the upload gate.
-
-```
-clawhub login
-clawhub skill publish ./skills/postey --slug postey --name "Postey" --version 1.3.0
-```
+`clawhub skill publish ./skills/postey` is refused because the folder carries
+`.claude-plugin/plugin.json`; publish a staged copy without it (exact commands in RUNBOOK
+Step 2). Never `clawhub sync --all`: it ignores `.clawhubignore` and would take the
+`template` slug.
 
 Publishes are held for automated scanning (VirusTotal + code-pattern analysis) before going live.
 
-**3. Claude Code community marketplace.** Individual authors submit at
-`platform.claude.com/plugins/submit`; Team/Enterprise orgs use
-`claude.ai/admin-settings/directory/submissions/plugins/new`. Approved plugins are pinned to
-a commit SHA and CI bumps the pin as we push, so this is submit-once. The public catalog
-syncs nightly, so expect a delay between approval and installability.
+**3. Anthropic plugin directory.** Submit from the developer portal at
+`claude.ai/directory/manage` (Submit new → Plugin bundle, plugin path `skills/postey`). Needs
+a paid claude.ai plan and a connected GitHub account with push access. One submission per
+plugin folder; each new commit on the tracked branch is re-scanned, so raise `version` per
+release. Listing reaches claude.ai, Cowork and Claude Code (as `postey@synced`). Submit
+`mcp.postey.ai/mcp` as an MCP connector alongside it. `claude-plugins-official` takes no
+portal submissions.
 
 **4. awesome-mcp-servers.** A PR against the list that backs `mcpservers.org`. Postiz is
 listed there; we are not.
