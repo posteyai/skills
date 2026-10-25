@@ -19,7 +19,7 @@
  * the refresh. It checks the two fields that go stale first.
  *
  *   node scripts/check-server-card.js
- *   SERVER_CARD_URL=https://dev.srvr.postey.ai/... node scripts/check-server-card.js
+ *   SERVER_CARD_URL=https://dev.mcp.postey.ai/... node scripts/check-server-card.js
  *
  * Exit codes: 0 = agrees, 1 = drift or unreachable. There is no skip path, and
  * adding one would restore the failure this script exists to prevent.
@@ -31,7 +31,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SNAPSHOT = path.join(ROOT, 'skills', 'postey', 'capability-snapshot.json');
 const CARD_URL =
-	process.env.SERVER_CARD_URL || 'https://srvr.postey.ai/.well-known/mcp/server-card.json';
+	process.env.SERVER_CARD_URL || 'https://mcp.postey.ai/.well-known/mcp/server-card.json';
 
 /** Pure, so the tests can drive it against fixtures (F-046). */
 function compare(snapshot, card) {

@@ -12,7 +12,7 @@
  * There is now one generated artifact and everything derives from it. This script
  * is the only thing allowed to write it.
  *
- *   MCP_SERVER_URL=https://srvr.postey.ai POSTEY_API_KEY=mk_... \
+ *   MCP_SERVER_URL=https://mcp.postey.ai POSTEY_API_KEY=mk_... \
  *     node scripts/refresh-capability-snapshot.js
  *
  * Add --check to fail instead of writing when the server has moved — that is the

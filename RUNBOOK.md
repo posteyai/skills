@@ -41,15 +41,18 @@ Uncontested — and namespaces are first-come.
 go install github.com/modelcontextprotocol/registry/cmd/mcp-publisher@latest
 # or: brew install mcp-publisher
 
-# 2. start DNS auth — this PRINTS a TXT record, it does not create one
-mcp-publisher login dns --domain postey.ai
+# 2. authenticate with the postey.ai DNS key
+mcp-publisher login dns --domain postey.ai --private-key "$(openssl pkey -in ~/.config/mcp-publisher/postey-ai-ed25519.pem -noout -text | grep -A3 'priv:' | tail -n +2 | tr -d ' :\n')"
 ```
 
-Take the TXT value it prints, add it at your DNS provider for `postey.ai`, wait for
-propagation, then re-run the login command until it succeeds.
+Registry auth uses an Ed25519 DNS key on `postey.ai`. The public half is already published as
+a TXT record on `postey.ai`; the private key lives at
+`~/.config/mcp-publisher/postey-ai-ed25519.pem` on the publisher's machine. **Never commit the
+key** or paste it into this repo. If the key is lost, generate a new pair and replace the
+`v=MCPv1; k=ed25519; p=...` TXT value on `postey.ai`, keeping the other apex TXT values intact.
 
 ```bash
-# 3. confirm the record is visible before retrying
+# 3. confirm the TXT record is visible if login fails
 dig +short TXT postey.ai
 
 # 4. publish (run from repo root — reads ./server.json)
@@ -61,7 +64,8 @@ mcp-publisher publish
 Namespace: `ai.postey/postey` — reverse DNS of `postey.ai`, which is why this needs the DNS
 challenge rather than GitHub auth.
 
-**Verify:** `curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=postey" | grep -c ai.postey` → `1` or more
+**Verify:** `curl -s "https://registry.modelcontextprotocol.io/v0/servers/ai.postey%2Fpostey/versions/latest"` shows the
+`version` from `server.json` and the remote `https://mcp.postey.ai/mcp`.
 
 ---
 
@@ -171,7 +175,7 @@ Reuse the same copy everywhere:
 
 - **Name:** Postey
 - **Description:** Draft, schedule and publish social posts to 9 networks; manage team drafts and comments.
-- **MCP URL:** `https://srvr.postey.ai/mcp` (streamable-http)
+- **MCP URL:** `https://mcp.postey.ai/mcp` (streamable-http)
 - **Auth:** OAuth (dynamic client registration); `X-API-Key: mk_...` for headless
 - **Homepage:** `https://postey.ai` · **Repo:** `https://github.com/posteyai/skills`
 

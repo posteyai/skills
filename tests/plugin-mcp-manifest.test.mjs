@@ -81,9 +81,9 @@ export function checkPluginMcpManifest(manifestText, setupDoc) {
 
 const validManifest = (over = {}) =>
 	JSON.stringify({
-		mcpServers: { postey: { type: 'http', url: 'https://srvr.postey.ai/mcp', ...over } }
+		mcpServers: { postey: { type: 'http', url: 'https://mcp.postey.ai/mcp', ...over } }
 	});
-const SETUP = 'Register `https://srvr.postey.ai/mcp` in your own client.';
+const SETUP = 'Register `https://mcp.postey.ai/mcp` in your own client.';
 
 test('the shipped manifest passes', () => {
 	assert.deepStrictEqual(
@@ -106,7 +106,7 @@ test('it sits at the plugin root, beside .claude-plugin', () => {
 
 test('a url with no type FAILS', () => {
 	const [problem] = checkPluginMcpManifest(
-		JSON.stringify({ mcpServers: { postey: { url: 'https://srvr.postey.ai/mcp' } } }),
+		JSON.stringify({ mcpServers: { postey: { url: 'https://mcp.postey.ai/mcp' } } }),
 		SETUP
 	);
 	assert.match(problem, /read as a stdio server/);
@@ -114,7 +114,7 @@ test('a url with no type FAILS', () => {
 
 test('a url that setup.md does not publish FAILS', () => {
 	const [problem] = checkPluginMcpManifest(
-		validManifest({ url: 'https://dev.srvr.postey.ai/mcp' }),
+		validManifest({ url: 'https://dev.mcp.postey.ai/mcp' }),
 		SETUP
 	);
 	assert.match(problem, /have drifted/);
@@ -122,7 +122,7 @@ test('a url that setup.md does not publish FAILS', () => {
 
 test('a renamed server FAILS, because the tool prefix derives from it', () => {
 	const [problem] = checkPluginMcpManifest(
-		JSON.stringify({ mcpServers: { 'postey-prod': { type: 'http', url: 'https://srvr.postey.ai/mcp' } } }),
+		JSON.stringify({ mcpServers: { 'postey-prod': { type: 'http', url: 'https://mcp.postey.ai/mcp' } } }),
 		SETUP
 	);
 	assert.match(problem, /tool prefix derives from it/);
@@ -131,7 +131,7 @@ test('a renamed server FAILS, because the tool prefix derives from it', () => {
 test('a local command instead of an address FAILS', () => {
 	const problems = checkPluginMcpManifest(
 		JSON.stringify({
-			mcpServers: { postey: { type: 'http', url: 'https://srvr.postey.ai/mcp', command: 'npx' } }
+			mcpServers: { postey: { type: 'http', url: 'https://mcp.postey.ai/mcp', command: 'npx' } }
 		}),
 		SETUP
 	);

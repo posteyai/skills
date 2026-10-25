@@ -28,7 +28,7 @@ Layers 1–3 are done. Layer 4 is the whole opportunity.
 
 ## Layer 2 — tool (done, no action)
 
-- MCP endpoint: `https://srvr.postey.ai/mcp` (streamable-http).
+- MCP endpoint: `https://mcp.postey.ai/mcp` (streamable-http).
 - 31 tools — 28 via `@mcp.tool` in `postey-backend/app/core/mcp/tools/`, plus
   `file_manager` / `list_files` / `read_file` registered by `mcp.add_provider()` in
   `uploads.py`. Grepping only for `@mcp.tool` undercounts by 3.
@@ -121,7 +121,8 @@ agent visibility is the retrieval layer above, and it is already done.
 Neither Postiz nor Postly ships one. Revisit when a path is ratified; building the wrong
 one now is worse than waiting.
 
-`srvr.postey.ai/.well-known/oauth-protected-resource` returns 404. This *is* ratified
+`mcp.postey.ai/.well-known/oauth-protected-resource` returns 404 (the path-suffixed
+`/.well-known/oauth-protected-resource/mcp` returns 200). The bare path *is* ratified
 (RFC 9728) and some clients probe it to discover the auth server. OAuth works today without
 it, so it's a robustness fix rather than a blocker — worth doing in the backend, low priority.
 

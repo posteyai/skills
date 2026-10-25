@@ -104,7 +104,7 @@ describe('check-setup-doc', () => {
 
 	test('catches a registration wrapped in a local bridge', () => {
 		const doc = validDoc({
-			body: '```\nnpx -y mcp-remote https://srvr.postey.ai/mcp\n```'
+			body: '```\nnpx -y mcp-remote https://mcp.postey.ai/mcp\n```'
 		});
 		assert.ok(rules(checkSetupDoc(doc)).includes('bridge-wrapper'));
 	});
@@ -118,7 +118,7 @@ describe('check-setup-doc', () => {
 		// Codex, not Hermes. On Hermes no `mcp add` form works at all, which the
 		// hermes-mcp-add rule below enforces.
 		const doc = validDoc({
-			body: '```\ncodex mcp add postey --url https://srvr.postey.ai/mcp\n```'
+			body: '```\ncodex mcp add postey --url https://mcp.postey.ai/mcp\n```'
 		});
 		assert.deepEqual(checkSetupDoc(doc), []);
 	});
@@ -167,7 +167,7 @@ describe('check-setup-doc', () => {
 	});
 
 	test('accepts the Step 1 health check against the MCP endpoint', () => {
-		const doc = validDoc({ body: '```\ncurl -X POST https://srvr.postey.ai/mcp\n```' });
+		const doc = validDoc({ body: '```\ncurl -X POST https://mcp.postey.ai/mcp\n```' });
 		assert.deepEqual(checkSetupDoc(doc), []);
 	});
 
@@ -190,14 +190,14 @@ describe('check-setup-doc', () => {
 		// --url, --command, --args, --auth, --preset, --connect-timeout, --env.
 		// None of them sets skip_preflight, and Postey needs it.
 		const doc = validDoc({
-			body: '```\nhermes mcp add postey --url https://srvr.postey.ai/mcp --auth oauth\n```'
+			body: '```\nhermes mcp add postey --url https://mcp.postey.ai/mcp --auth oauth\n```'
 		});
 		assert.ok(rules(checkSetupDoc(doc)).includes('hermes-mcp-add'));
 	});
 
 	test('accepts the hermes config set form, which writes all three keys', () => {
 		const doc = validDoc({
-			body: '```\nhermes config set mcp_servers.postey.url https://srvr.postey.ai/mcp\n```'
+			body: '```\nhermes config set mcp_servers.postey.url https://mcp.postey.ai/mcp\n```'
 		});
 		assert.deepEqual(checkSetupDoc(doc), []);
 	});

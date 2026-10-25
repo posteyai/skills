@@ -61,7 +61,7 @@ Two ways to authenticate:
 - **OAuth 2.1 + PKCE**, with dynamic client registration. Interactive, so it needs a browser.
 - **`X-API-Key: mk_...`** for headless and CI agents, created under **AI & Agents → Advanced** in [the Postey app](https://app.postey.ai?settings=agents&section=advanced). There is no `client_credentials` grant, so this is the only browserless path.
 
-The server publishes a machine-readable summary at [`/connect`](https://srvr.postey.ai/connect) and a full tool list at [`/.well-known/mcp/server-card.json`](https://srvr.postey.ai/.well-known/mcp/server-card.json). Neither needs a credential.
+The server publishes a machine-readable summary at [`/connect`](https://mcp.postey.ai/connect) and a full tool list at [`/.well-known/mcp/server-card.json`](https://mcp.postey.ai/.well-known/mcp/server-card.json). Neither needs a credential.
 
 ## The skill and the server are layers, not alternatives
 
