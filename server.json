@@ -2,9 +2,18 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "ai.postey/postey",
   "title": "Postey",
-  "description": "Draft, schedule and publish social posts to 9 networks; manage team drafts and comments.",
-  "version": "2.4.1",
+  "description": "Draft, schedule and publish social posts to nine platforms from any AI agent.",
+  "version": "3.0.0",
   "websiteUrl": "https://postey.ai",
+  "icons": [
+    {
+      "src": "https://postey.ai/apple-touch-icon.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "180x180"
+      ]
+    }
+  ],
   "repository": {
     "url": "https://github.com/posteyai/skills",
     "source": "github"
