@@ -74,11 +74,30 @@ challenge rather than GitHub auth.
 
 ## Step 2 — ClawHub
 
+`clawhub skill publish ./skills/postey` is refused ("This looks like a plugin") because the
+folder holds `.claude-plugin/plugin.json`, and `clawhub package publish` wants a
+ClawHub-native plugin manifest we don't ship. Publish a staged copy without the Claude manifest. The
+dot-folders never upload anyway, so the published files are the same.
+
 ```bash
 npm i -g clawhub
 clawhub login          # opens a browser for GitHub OAuth
-clawhub skill publish ./skills/postey --slug postey --name "Postey" --version 1.3.0
+clawhub whoami
+
+stage=$(mktemp -d)
+cp -R skills/postey "$stage/postey"
+rm -rf "$stage/postey/.claude-plugin"
+v=$(node -p "require('./skills/postey/pack.json').version")
+clawhub skill publish "$stage/postey" --slug postey --name "Postey" --version "$v" \
+  --owner <postey-org-handle> \
+  --source-repo posteyai/skills --source-commit "$(git rev-parse HEAD)" \
+  --source-ref main --source-path skills/postey \
+  --dry-run              # drop --dry-run once the preview says "Would publish postey@<v>"
 ```
+
+Don't use `clawhub sync --all` from the repo root. Its folder scan ignores `.clawhubignore`,
+so it would also publish `skills/_template` under the permanent slug `template`, and it
+versions every skill from 1.0.0 instead of reading the real version.
 
 **Publish from an org account, not personal** — a personal-account listing reads as a
 third-party clone rather than the official Postey skill.
@@ -97,29 +116,38 @@ you're signed in.
 
 ## Step 3 — Claude Code community marketplace
 
-Submit at **`platform.claude.com/plugins/submit`** (individual authors) or
-**`claude.ai/admin-settings/directory/submissions/plugins/new`** (Team/Enterprise orgs, needs
-directory-management access).
+The earlier Console forms are gone. Submit from the developer portal at
+**`claude.ai/directory/manage`** → **Submit new** → **Plugin bundle**
+(guide: `claude.com/docs/plugins/submit`). It needs a paid claude.ai plan (Pro/Max submit
+from their own account; on Team/Enterprise an Owner submits) and a GitHub account connected
+on claude.ai that can push to `posteyai/skills`.
 
 Field values:
 
 | Field | Value |
 |---|---|
-| Repository | `https://github.com/posteyai/skills` |
-| Plugin name | `postey` |
-| Marketplace manifest | `.claude-plugin/marketplace.json` (repo root) |
+| Repository | `posteyai/skills` |
+| Plugin path | `skills/postey` (one submission per plugin folder) |
+| Branch or tag | leave empty (follows `main`) |
+| Updates | GitHub push webhook (needs repo admin) |
+
+Then answer the Data handling and Compliance steps. The portal's **Validate** runs more
+checks than the CLI: a plugin-folder README of 40+ words and a license are blocking. `postey`
+has both; the packs have no README, so add one before submitting any of them.
 
 Pre-flight — already passing, re-run after any edit:
 
 ```bash
-claude plugin validate ./skills/postey
+claude plugin validate --strict ./skills/postey
 ```
 
-Approved plugins are pinned to a commit SHA and CI bumps the pin as you push, so this is
-submit-once. The public catalog syncs nightly, so there's a lag between approval and
-installability.
+Each scanned commit is checked again, so later releases need no new submission. Raise
+`version` in `plugin.json` with every release, or the listing won't move. Also submit
+`https://mcp.postey.ai/mcp` separately as an **MCP connector**, which the portal expects
+for a plugin that references a remote server you run.
 
-**Verify:** `claude plugin marketplace add anthropics/claude-plugins-community` then search for `postey`.
+**Verify:** the listing appears at `claude.ai/directory`. Anthropic's `claude-plugins-official`
+marketplace takes no portal submissions; that one goes through a partner contact.
 
 ---
 

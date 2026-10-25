@@ -8,5 +8,6 @@
   },
   "homepage": "https://postey.ai",
   "repository": "https://github.com/posteyai/skills",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": ["postey"]
 }
