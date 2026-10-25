@@ -127,7 +127,7 @@ node scripts/check-doc-commands.js
 MCP_TOOLS_DIR=../postey-backend/app/core/mcp/tools node scripts/check-mcp-tool-sync.js
 
 # Check MCP tool sync (runtime mode — requires live server + API key)
-MCP_SERVER_URL=https://srvr.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
+MCP_SERVER_URL=https://mcp.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
 
 # Smoke test (requires a real API key)
 ./skills/postey/scripts/postey.js setup
@@ -168,7 +168,7 @@ CI enforces this via `check-mcp-tool-sync.js`.
   ```
 - **Runtime mode** (live server): fetches `postey://skill-manifest` resource.
   ```bash
-  MCP_SERVER_URL=https://srvr.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
+  MCP_SERVER_URL=https://mcp.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
   ```
   Set `MCP_STAGING_URL` as a GitHub Actions secret to enable runtime verification in CI.
 

@@ -9,7 +9,7 @@
  *   node scripts/check-mcp-tool-sync.js
  *
  * Runtime mode (requires live server):
- *   MCP_SERVER_URL=https://srvr.postey.ai \
+ *   MCP_SERVER_URL=https://mcp.postey.ai \
  *   POSTEY_API_KEY=mk_... \
  *   node scripts/check-mcp-tool-sync.js
  *

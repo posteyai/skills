@@ -82,7 +82,7 @@ around that.
 
 ## Step 1 — Check prerequisites
 
-Confirm that `https://srvr.postey.ai` is reachable.
+Confirm that `https://mcp.postey.ai` (the MCP server) and `https://srvr.postey.ai` (sign-in) are reachable.
 
 A healthy server answers in ways that look like errors. Read them as success.
 
@@ -99,7 +99,7 @@ Do not treat it as a fault.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Network timeout to `srvr.postey.ai` | Offline, or egress blocked | Restore connectivity. A corporate proxy must allow `srvr.postey.ai` |
+| Network timeout to `mcp.postey.ai` or `srvr.postey.ai` | Offline, or egress blocked | Restore connectivity. A corporate proxy must allow both `mcp.postey.ai` and `srvr.postey.ai` |
 | TLS error | The proxy intercepts TLS | Add the proxy certificate authority to your trust store |
 
 ---
