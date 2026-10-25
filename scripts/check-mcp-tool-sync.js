@@ -50,7 +50,7 @@ const MCP_FILE_TOOLS_FILE = process.env.MCP_FILE_TOOLS_FILE ||
  * Tools deliberately NOT granted in SKILL.md `mcp-tools.tools:`.
  *
  * A tool absent from that key is a tool the skill cannot call, so silence is not
- * a safe default — `configure_auto_dm` was missing for an unknown length of time
+ * a safe default — a write tool was once missing for an unknown length of time
  * and this script reported it as a warning and exited 0. Omission must now be
  * declared with a reason, exactly as S9.6 does for capability overlap.
  */
@@ -58,6 +58,7 @@ const INTENTIONALLY_UNGRANTED = {
   file_manager: 'Hosted-server upload widget — the skill uploads from disk via the CLI.',
   list_files: 'Hosted-server session file list; no meaning for a local CLI run.',
   read_file: 'Hosted-server session file metadata; no meaning for a local CLI run.',
+  store_files: 'App-only transport the file_manager widget calls (_meta.ui.visibility ["app"], capability file.store); never model-visible.',
 };
 
 let errors = 0;
@@ -144,12 +145,22 @@ function extractToolsFromSource(toolsDir) {
   return names.sort();
 }
 
-// Keys of the FILE_TOOL_METADATA mapping — tools the server registers through
-// FastMCP rather than through the @mcp.tool decorator.
+// Top-level keys of the FILE_TOOL_METADATA mapping — tools the server registers
+// through FastMCP rather than through the @mcp.tool decorator. Scoped to that
+// one literal: the file also holds JSON-schema dicts whose `"properties": {`
+// sits at the same indent and would otherwise read as a tool.
 function extractFileToolsFromSource(metadataFile) {
   if (!metadataFile || !fs.existsSync(metadataFile)) return [];
   const src = fs.readFileSync(metadataFile, 'utf8');
-  return [...src.matchAll(/^\s{4}["']([a-z_]+)["']:\s*\{/gm)].map(m => m[1]).sort();
+  const start = src.search(/^FILE_TOOL_METADATA\b[^=\n]*=\s*\{\s*$/m);
+  if (start === -1) {
+    fail(`${metadataFile} has no FILE_TOOL_METADATA = { literal; cannot read the file tools`);
+    return [];
+  }
+  const body = src.slice(start).split('\n').slice(1);
+  const end = body.findIndex(line => /^\}/.test(line));
+  return [...body.slice(0, end === -1 ? undefined : end).join('\n')
+    .matchAll(/^ {4}["']([a-z_]+)["']:\s*\{/gm)].map(m => m[1]).sort();
 }
 
 function extractPromptsFromSource(promptsFile) {
