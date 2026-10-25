@@ -20,7 +20,7 @@ Index of all skills in this repository.
 
 1. Copy `_template/` to `<skill-name>/`
 2. Fill in `<skill-name>/SKILL.md` frontmatter and body
-3. Add `<skill-name>/.claude-plugin/plugin.json`
-4. Add a plugin entry to `../../.claude-plugin/marketplace.json`
+3. Add a plugin entry to `../../.claude-plugin/marketplace.json` with `"strict": false` and `"dependencies": ["postey"]`. The entry is the plugin manifest; the skill folder gets no `.claude-plugin/` (ClawHub refuses one)
+4. Run `claude plugin validate --strict .` from the repo root
 5. Add a row to this table
 6. Write tests in `../../tests/<skill-name>-cli.test.js`

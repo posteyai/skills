@@ -6,7 +6,7 @@ Write one idea and Claude reshapes it for each network against that network's re
 
 ## What's in the plugin
 
-- **Postey MCP server** (`.mcp.json`): the hosted, remote server at `https://mcp.postey.ai/mcp`. You sign in to your Postey account with OAuth in your browser the first time you use it. Nothing is installed locally.
+- **Postey MCP server**: the hosted, remote server at `https://mcp.postey.ai/mcp`. You sign in to your Postey account with OAuth in your browser the first time you use it. Nothing is installed locally.
 - **`postey` skill** (`SKILL.md` and `references/`): accounts, platform limits, the post lifecycle, and the writing guidance (hooks, captions, post structures) Claude uses to shape each draft.
 - **Optional CLI** (`scripts/postey.js`, plain readable Node.js): only used in Claude Code when you ask for something the hosted server can't reach, such as uploading a video or image from your local disk.
 

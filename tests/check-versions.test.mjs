@@ -25,7 +25,7 @@ function fixture({ version = '1.0.0', omit = [] } = {}) {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'postey-versions-'));
 	FIXTURE_ROOTS.push(root);
 	const skill = path.join(root, 'skills', 'postey');
-	for (const d of ['scripts/lib', 'skills/postey/.claude-plugin', '.claude-plugin', '.codex-plugin', '.cursor-plugin']) {
+	for (const d of ['scripts/lib', 'skills/postey', '.claude-plugin', '.codex-plugin', '.cursor-plugin']) {
 		fs.mkdirSync(path.join(root, d), { recursive: true });
 	}
 	fs.copyFileSync(path.join(REPO, 'scripts/check-versions.js'), path.join(root, 'scripts/check-versions.js'));
@@ -36,7 +36,6 @@ function fixture({ version = '1.0.0', omit = [] } = {}) {
 		fs.writeFileSync(path.join(root, rel), body);
 	};
 	write('skills/postey/SKILL.md', `---\nname: postey\nversion: ${version}\n---\n\nbody\n`);
-	write('skills/postey/.claude-plugin/plugin.json', JSON.stringify({ name: 'postey', version }));
 	write('skills/postey/pack.json', JSON.stringify({ name: 'postey', version }));
 	write('.claude-plugin/marketplace.json', JSON.stringify({ plugins: [{ name: 'postey', version }] }));
 	write('.codex-plugin/plugin.json', JSON.stringify({ name: 'postey', version }));
@@ -80,7 +79,6 @@ test('an empty skills/ FAILS rather than passing vacuously', () => {
 for (const missing of [
 	'.codex-plugin/plugin.json',
 	'.cursor-plugin/plugin.json',
-	'skills/postey/.claude-plugin/plugin.json',
 	'skills/postey/pack.json',
 	'.claude-plugin/marketplace.json',
 	'skills/REGISTRY.md',

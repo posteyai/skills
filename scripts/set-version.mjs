@@ -1,9 +1,9 @@
-// Cutting a release means writing the same version into seven places. Six of
-// them are asserted afterwards by check-versions.js; the seventh — the tag
-// inside pack.json's rawBase — is asserted by pack-manifest.test.js. Both only
+// Cutting a release means writing the same version into every place listed in
+// edits() below. All but one are asserted afterwards by check-versions.js; the
+// tag inside pack.json's rawBase is asserted by pack-manifest.test.js. Both only
 // ever catch the mistake after a human has made it.
 //
-// This writes all seven from one argument, so the hand edit that check-versions
+// This writes all of them from one argument, so the hand edit that check-versions
 // exists to police stops happening. check-versions.js stays exactly as it is:
 // the writer and the assertion are deliberately separate programs, so a bug
 // here cannot silence the check that would catch it.
@@ -42,11 +42,6 @@ function edits(skill, version, root) {
 			file: path.join(skillDir, 'SKILL.md'),
 			what: 'SKILL.md frontmatter',
 			apply: (s) => replaceOne(s, /^(version:\s*)(\S+)\s*$/m, `$1${version}`)
-		},
-		{
-			file: path.join(skillDir, '.claude-plugin', 'plugin.json'),
-			what: 'plugin.json',
-			apply: (s) => replaceOne(s, /("version":\s*")([^"]+)(")/, `$1${version}$3`)
 		},
 		{
 			file: path.join(root, '.claude-plugin', 'marketplace.json'),

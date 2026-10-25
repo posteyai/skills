@@ -38,11 +38,14 @@ Layers 1–3 are done. Layer 4 is the whole opportunity.
 
 ## Layer 3 — plugin (fixed here, needs release)
 
-The plugin previously shipped `SKILL.md` and a CLI but **no `.mcp.json`**, so installing it
-gave the agent instructions without the tools. `skills/postey/.mcp.json` now declares the
-remote server, so install and connect are one step. OAuth means no secret is embedded.
+The plugin previously shipped `SKILL.md` and a CLI but **no MCP server declaration**, so
+installing it gave the agent instructions without the tools. The `postey` entry in
+`.claude-plugin/marketplace.json` now declares the remote server in `mcpServers`, so install
+and connect are one step. OAuth means no secret is embedded. The entry is the whole plugin
+manifest (`strict: false`, no `plugin.json`), which keeps `skills/postey/` a plain skill
+folder that ClawHub accepts.
 
-`claude plugin validate ./skills/postey` → passes.
+`claude plugin validate --strict .` → passes.
 
 ## Layer 4 — registries (the work)
 
@@ -55,7 +58,7 @@ remote server, so install and connect are one step. OAuth means no secret is emb
 | # | Target | Mechanism | Status |
 |---|---|---|---|
 | 1 | **Official MCP Registry** | `mcp-publisher` + `server.json`, DNS auth | ready — not submitted |
-| 2 | **ClawHub** | `clawhub skill publish` (staged copy, see RUNBOOK) | ready — not submitted (2026-10-25: `postey` slug free; Postiz listed) |
+| 2 | **ClawHub** | `clawhub skill publish skills/<name>` (see RUNBOOK) | ready — not submitted (2026-10-25: `postey` slug free; Postiz listed) |
 | 3 | **Anthropic plugin directory** | developer portal `claude.ai/directory/manage` | ready — not submitted (2026-10-25: Postiz is in both `claude-plugins-official` and `-community`) |
 | 4 | **awesome-mcp-servers / mcpservers.org** | pull request | not submitted |
 | 5 | **Context7** | `context7.com/add-library` | not submitted |
@@ -77,15 +80,17 @@ does the most work.
 
 **2. ClawHub.** Embedding-based search, so `description` and `when_to_use` in `SKILL.md`
 matter more than keywords. Requires a GitHub account old enough to clear the upload gate.
-`clawhub skill publish ./skills/postey` is refused because the folder carries
-`.claude-plugin/plugin.json`; publish a staged copy without it (exact commands in RUNBOOK
-Step 2). Never `clawhub sync --all`: it ignores `.clawhubignore` and would take the
-`template` slug.
+Each `skills/<name>/` folder is a plain skill folder, so `clawhub skill publish skills/<name>`
+works as is (exact commands in RUNBOOK Step 2). Never `clawhub sync --all`: it ignores
+`.clawhubignore` and would take the `template` slug. The web "Import from GitHub" also
+lists `skills/_template` and the `tests/fixtures/` skills; choose `skills/<name>` only.
 
 Publishes are held for automated scanning (VirusTotal + code-pattern analysis) before going live.
 
 **3. Anthropic plugin directory.** Submit from the developer portal at
-`claude.ai/directory/manage` (Submit new → Plugin bundle, plugin path `skills/postey`). Needs
+`claude.ai/directory/manage` (Submit new → Plugin bundle, plugin path `skills/postey`). That folder has no `plugin.json`
+(the marketplace entry defines the plugin), so the bundled MCP server and listing fields
+come from the connector submission and the portal form; see RUNBOOK Step 3. Needs
 a paid claude.ai plan and a connected GitHub account with push access. One submission per
 plugin folder; each new commit on the tracked branch is re-scanned, so raise `version` per
 release. Listing reaches claude.ai, Cowork and Claude Code (as `postey@synced`). Submit

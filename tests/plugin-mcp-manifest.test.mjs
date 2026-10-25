@@ -1,5 +1,7 @@
-// Claude Code registers a plugin's MCP servers from `.mcp.json` at the PLUGIN
-// root when the plugin is installed. That removes a whole step for Claude Code
+// Claude Code registers a plugin's MCP servers from its manifest when the plugin
+// is installed. The hub has no plugin.json or .mcp.json (ClawHub refuses a skill
+// folder that carries a plugin manifest), so the servers live in `mcpServers` on
+// the hub's marketplace entry, which is that plugin's manifest. That removes a whole step for Claude Code
 // users: `claude plugin install` now registers the server as well as the skill,
 // so there is no `claude mcp add` to get wrong and no per-client entry to hand
 // them.
@@ -23,7 +25,10 @@ import { fileURLToPath } from 'node:url';
 // ERR_INVALID_ARG_TYPE out of path.join, naming neither the file nor the version.
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PLUGIN_ROOT = path.join(ROOT, 'skills', 'postey');
-const MANIFEST = path.join(PLUGIN_ROOT, '.mcp.json');
+const MARKETPLACE = path.join(ROOT, '.claude-plugin', 'marketplace.json');
+const hubEntry = () =>
+	JSON.parse(fs.readFileSync(MARKETPLACE, 'utf8')).plugins.find((p) => p.source === './skills/postey');
+const shippedManifestText = () => JSON.stringify({ mcpServers: hubEntry()?.mcpServers });
 
 /** The checks, as a pure function, so fixtures can drive them. */
 export function checkPluginMcpManifest(manifestText, setupDoc) {
@@ -32,12 +37,12 @@ export function checkPluginMcpManifest(manifestText, setupDoc) {
 	try {
 		manifest = JSON.parse(manifestText);
 	} catch (err) {
-		return [`.mcp.json is not valid JSON: ${err.message}`];
+		return [`MCP manifest is not valid JSON: ${err.message}`];
 	}
 
 	const servers = manifest.mcpServers;
 	if (!servers || typeof servers !== 'object') {
-		return ['.mcp.json has no mcpServers object'];
+		return ['the manifest has no mcpServers object'];
 	}
 
 	const names = Object.keys(servers);
@@ -87,20 +92,17 @@ const SETUP = 'Register `https://mcp.postey.ai/mcp` in your own client.';
 
 test('the shipped manifest passes', () => {
 	assert.deepStrictEqual(
-		checkPluginMcpManifest(fs.readFileSync(MANIFEST, 'utf8'), fs.readFileSync(path.join(ROOT, 'setup.md'), 'utf8')),
+		checkPluginMcpManifest(shippedManifestText(), fs.readFileSync(path.join(ROOT, 'setup.md'), 'utf8')),
 		[]
 	);
 });
 
-test('it sits at the plugin root, beside .claude-plugin', () => {
-	// Placement is the whole mechanism. At the repo root Claude Code never reads
-	// it, and the file would look correct while doing nothing — which is how it
-	// was described in CLAUDE.md before it existed.
-	assert.ok(fs.existsSync(MANIFEST), '.mcp.json must be at skills/postey/, the plugin root');
-	assert.ok(
-		fs.existsSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json')),
-		'the plugin root is the directory holding .claude-plugin/'
-	);
+test('it lives on the hub entry, not in a file Claude Code would also read', () => {
+	// A skills/postey/.mcp.json would still load (Claude Code merges it with the
+	// entry), so a second copy could drift silently. A repo-root one is read by
+	// nothing.
+	assert.ok(hubEntry(), 'no marketplace entry with source ./skills/postey');
+	assert.ok(!fs.existsSync(path.join(PLUGIN_ROOT, '.mcp.json')), 'skills/postey/.mcp.json duplicates the entry');
 	assert.ok(!fs.existsSync(path.join(ROOT, '.mcp.json')), 'a repo-root .mcp.json is read by nothing');
 });
 
@@ -149,12 +151,11 @@ test('malformed JSON FAILS as a named problem, not a thrown suite', () => {
 	assert.match(problem, /not valid JSON/);
 });
 
-test('the plugin version and the manifest ship together', () => {
-	// pack.json drives fetch-based installs and does not carry .mcp.json, because
-	// a fetch install is not a plugin install. Assert the plugin manifest exists
-	// so the two install paths cannot silently diverge on which one registers a
-	// server.
-	const plugin = JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'), 'utf8'));
-	assert.strictEqual(plugin.name, 'postey');
-	assert.ok(fs.existsSync(MANIFEST));
+test('the hub entry that installs is the one that registers the server', () => {
+	// pack.json drives fetch-based installs and does not carry the server, because
+	// a fetch install is not a plugin install. Packs reach it through their
+	// dependency on this entry, so it has to be the entry named `postey`.
+	const entry = hubEntry();
+	assert.strictEqual(entry.name, 'postey');
+	assert.ok(entry.mcpServers && Object.keys(entry.mcpServers).length > 0);
 });
