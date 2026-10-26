@@ -115,7 +115,7 @@ cannot do this yourself. Give the user the steps and wait.
 |---|---|
 | Claude on the web | Open <https://claude.ai/settings/connectors>, choose **Add custom connector**, paste `https://mcp.postey.ai/mcp`, then authorize |
 | Claude Desktop | Open Settings, then **Connectors**, then **Add custom connector**, and use the same address. This needs a paid plan |
-| ChatGPT | Open Settings, then **Apps**, then **Advanced**, and turn on **Developer Mode**. Choose **Create app**, paste the address, then authorize |
+| ChatGPT | Open **Plugins**, select **+**, then **Add custom MCP server**. Name it Postey, paste the address, authorize, tick the risk warning, then select **Create**. Developer Mode is no longer needed |
 
 A connector authorizes through OAuth in the browser. Track B therefore needs no
 credential from Step 3. Go to Step 6 once the user reports that the connector is
