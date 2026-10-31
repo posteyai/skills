@@ -44,7 +44,7 @@
       "name": "postey-ideas",
       "source": "./skills/postey-ideas",
       "description": "Decide what to post: turn a trend or one rough idea into per-platform drafts. Hooks that earn replies and saves, post structures measured against top performers, and what actually spreads on each network.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"
@@ -73,7 +73,7 @@
       "name": "postey-video",
       "source": "./skills/postey-video",
       "description": "Video pack for Postey: transcribe a video and turn it into per-platform posts. Requires the postey skill.",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"
@@ -97,7 +97,7 @@
       "name": "postey-voice",
       "source": "./skills/postey-voice",
       "description": "Voice pack for Postey: learn how the user writes from their published posts and their draft verdicts. Requires the postey skill.",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"
@@ -120,7 +120,7 @@
       "name": "postey-engagement",
       "source": "./skills/postey-engagement",
       "description": "Engagement pack for Postey: comment triage, replies and a read-only view of running automations. Requires the postey skill.",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"
@@ -141,7 +141,7 @@
       "name": "postey-analytics",
       "source": "./skills/postey-analytics",
       "description": "Analytics pack for Postey: read performance, say what it supports, and turn it into a recommendation. Requires the postey skill.",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"
@@ -162,7 +162,7 @@
       "name": "postey-ops",
       "source": "./skills/postey-ops",
       "description": "Ops pack for Postey: publish-status checks, failure triage and queue health. Requires the postey skill.",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"
@@ -183,7 +183,7 @@
       "name": "postey-teams",
       "source": "./skills/postey-teams",
       "description": "Teams pack for Postey: review workflow, internal comments and share links. Requires the postey skill.",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Postey",
         "url": "https://postey.ai"
