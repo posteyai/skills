@@ -39,11 +39,11 @@ Layers 1–3 are done. Layer 4 is the whole opportunity.
 ## Layer 3 — plugin (fixed here, needs release)
 
 The plugin previously shipped `SKILL.md` and a CLI but **no MCP server declaration**, so
-installing it gave the agent instructions without the tools. The `postey` entry in
-`.claude-plugin/marketplace.json` now declares the remote server in `mcpServers`, so install
-and connect are one step. OAuth means no secret is embedded. The entry is the whole plugin
-manifest (`strict: false`, no `plugin.json`), which keeps `skills/postey/` a plain skill
-folder that ClawHub accepts.
+installing it gave the agent instructions without the tools. `skills/postey/.mcp.json` now
+declares the remote server, so install and connect are one step. OAuth means no secret is
+embedded. The hub keeps `skills/postey/.claude-plugin/plugin.json` because the Claude
+directory blocks a plugin folder without one; ClawHub gets a staged copy without either file
+(RUNBOOK Step 2).
 
 `claude plugin validate --strict .` → passes.
 
@@ -88,9 +88,8 @@ lists `skills/_template` and the `tests/fixtures/` skills; choose `skills/<name>
 Publishes are held for automated scanning (VirusTotal + code-pattern analysis) before going live.
 
 **3. Anthropic plugin directory.** Submit from the developer portal at
-`claude.ai/directory/manage` (Submit new → Plugin bundle, plugin path `skills/postey`). That folder has no `plugin.json`
-(the marketplace entry defines the plugin), so the bundled MCP server and listing fields
-come from the connector submission and the portal form; see RUNBOOK Step 3. Needs
+`claude.ai/directory/manage` (Submit new → Plugin bundle, plugin path `skills/postey`). That folder must keep
+`.claude-plugin/plugin.json` (the portal blocks it otherwise) and `.mcp.json`; see RUNBOOK Step 3. Needs
 a paid claude.ai plan and a connected GitHub account with push access. One submission per
 plugin folder; each new commit on the tracked branch is re-scanned, so raise `version` per
 release. Listing reaches claude.ai, Cowork and Claude Code (as `postey@synced`). Submit
