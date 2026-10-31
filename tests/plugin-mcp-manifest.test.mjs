@@ -1,7 +1,7 @@
-// Claude Code registers a plugin's MCP servers from its manifest when the plugin
-// is installed. The hub has no plugin.json or .mcp.json (ClawHub refuses a skill
-// folder that carries a plugin manifest), so the servers live in `mcpServers` on
-// the hub's marketplace entry, which is that plugin's manifest. That removes a whole step for Claude Code
+// Claude Code registers a plugin's MCP servers from `.mcp.json` at the PLUGIN
+// root when the plugin is installed. The hub keeps it at skills/postey/.mcp.json,
+// beside .claude-plugin/plugin.json, because the Claude directory validates that
+// folder as the plugin (ClawHub gets a staged copy without either file). That removes a whole step for Claude Code
 // users: `claude plugin install` now registers the server as well as the skill,
 // so there is no `claude mcp add` to get wrong and no per-client entry to hand
 // them.
@@ -25,10 +25,11 @@ import { fileURLToPath } from 'node:url';
 // ERR_INVALID_ARG_TYPE out of path.join, naming neither the file nor the version.
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PLUGIN_ROOT = path.join(ROOT, 'skills', 'postey');
+const MANIFEST = path.join(PLUGIN_ROOT, '.mcp.json');
 const MARKETPLACE = path.join(ROOT, '.claude-plugin', 'marketplace.json');
 const hubEntry = () =>
 	JSON.parse(fs.readFileSync(MARKETPLACE, 'utf8')).plugins.find((p) => p.source === './skills/postey');
-const shippedManifestText = () => JSON.stringify({ mcpServers: hubEntry()?.mcpServers });
+const shippedManifestText = () => fs.readFileSync(MANIFEST, 'utf8');
 
 /** The checks, as a pure function, so fixtures can drive them. */
 export function checkPluginMcpManifest(manifestText, setupDoc) {
@@ -97,12 +98,16 @@ test('the shipped manifest passes', () => {
 	);
 });
 
-test('it lives on the hub entry, not in a file Claude Code would also read', () => {
-	// A skills/postey/.mcp.json would still load (Claude Code merges it with the
-	// entry), so a second copy could drift silently. A repo-root one is read by
-	// nothing.
+test('it sits at the plugin root, beside .claude-plugin, and nowhere else', () => {
+	// Placement is the whole mechanism. A copy on the marketplace entry would also
+	// load and could drift silently; a repo-root one is read by nothing.
+	assert.ok(fs.existsSync(MANIFEST), '.mcp.json must be at skills/postey/, the plugin root');
+	assert.ok(
+		fs.existsSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json')),
+		'the plugin root is the directory holding .claude-plugin/'
+	);
 	assert.ok(hubEntry(), 'no marketplace entry with source ./skills/postey');
-	assert.ok(!fs.existsSync(path.join(PLUGIN_ROOT, '.mcp.json')), 'skills/postey/.mcp.json duplicates the entry');
+	assert.ok(!hubEntry().mcpServers, 'the hub entry duplicates skills/postey/.mcp.json');
 	assert.ok(!fs.existsSync(path.join(ROOT, '.mcp.json')), 'a repo-root .mcp.json is read by nothing');
 });
 
@@ -151,11 +156,12 @@ test('malformed JSON FAILS as a named problem, not a thrown suite', () => {
 	assert.match(problem, /not valid JSON/);
 });
 
-test('the hub entry that installs is the one that registers the server', () => {
+test('the plugin that installs is the one that registers the server', () => {
 	// pack.json drives fetch-based installs and does not carry the server, because
 	// a fetch install is not a plugin install. Packs reach it through their
-	// dependency on this entry, so it has to be the entry named `postey`.
-	const entry = hubEntry();
-	assert.strictEqual(entry.name, 'postey');
-	assert.ok(entry.mcpServers && Object.keys(entry.mcpServers).length > 0);
+	// dependency on `postey`, so plugin.json and the entry must both be `postey`.
+	const plugin = JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'), 'utf8'));
+	assert.strictEqual(plugin.name, 'postey');
+	assert.strictEqual(hubEntry().name, 'postey');
+	assert.ok(fs.existsSync(MANIFEST));
 });
