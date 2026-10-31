@@ -110,7 +110,7 @@ Pass `--name "Postey"` for the hub. Always pass `--version`: without it ClawHub 
 every skill at 1.0.0.
 
 Don't use `clawhub sync --all` from the repo root. Its folder scan ignores `.clawhubignore`,
-so it would also publish `skills/_template` under the permanent slug `template`, and it
+so it would also publish `templates/skill` under the permanent slug `template`, and it
 versions every skill from 1.0.0 instead of reading the real version. The same scan would
 also find the test fixtures under `tests/fixtures/` (`alpha`, `beta`, `absent`, `declared`,
 ...), which are synthetic `SKILL.md` files for the repo's own checks.
@@ -123,7 +123,7 @@ before going live, so expect a delay. Search is embedding-based, so the `descrip
 `when_to_use` fields in `SKILL.md` are what get you found — not tags.
 
 `clawhub.ai` also has a web "Import from GitHub". It lists every `SKILL.md` in the repo as
-a candidate, including `skills/_template` and the `tests/fixtures/` ones, because the
+a candidate, including `templates/skill` and the `tests/fixtures/` ones, because the
 importer reads no ignore file (`.clawhubignore` only applies to CLI publishes). Pick
 `skills/<name>` by hand and nothing else. The CLI path above is the one that is verified.
 

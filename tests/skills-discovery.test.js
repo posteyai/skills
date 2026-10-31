@@ -60,7 +60,7 @@ const frontmatter = dir =>
   fs.readFileSync(path.join(dir, 'SKILL.md'), 'utf8').match(/^---\s*\n([\s\S]*?)\n---/)[1];
 
 test('the template is hidden from npx skills add', () => {
-  assert.match(frontmatter(path.join(__dirname, '..', 'skills', '_template')), INTERNAL);
+  assert.match(frontmatter(path.join(__dirname, '..', 'templates', 'skill')), INTERNAL);
 });
 
 test('no real skill is hidden from npx skills add', () => {

@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 // A skill is a directory under skills/ that holds a SKILL.md. Underscore-prefixed
-// directories (_template) are scaffolding, not skills.
+// directories are scaffolding, not skills.
 function discoverSkills(skillsDir) {
   if (!fs.existsSync(skillsDir)) return [];
   return fs

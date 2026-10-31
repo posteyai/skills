@@ -25,7 +25,7 @@ function fixture({ version = '1.0.0', omit = [] } = {}) {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'postey-versions-'));
 	FIXTURE_ROOTS.push(root);
 	const skill = path.join(root, 'skills', 'postey');
-	for (const d of ['scripts/lib', 'skills/postey/.claude-plugin', '.claude-plugin', '.codex-plugin', '.cursor-plugin']) {
+	for (const d of ['scripts/lib', 'skills/postey/.claude-plugin', '.claude-plugin', '.codex-plugin', '.cursor-plugin', '.grok-plugin']) {
 		fs.mkdirSync(path.join(root, d), { recursive: true });
 	}
 	fs.copyFileSync(path.join(REPO, 'scripts/check-versions.js'), path.join(root, 'scripts/check-versions.js'));
@@ -41,6 +41,7 @@ function fixture({ version = '1.0.0', omit = [] } = {}) {
 	write('.claude-plugin/marketplace.json', JSON.stringify({ plugins: [{ name: 'postey', version }] }));
 	write('.codex-plugin/plugin.json', JSON.stringify({ name: 'postey', version }));
 	write('.cursor-plugin/plugin.json', JSON.stringify({ name: 'postey', version }));
+	write('.grok-plugin/plugin.json', JSON.stringify({ name: 'postey', version }));
 	write('skills/REGISTRY.md', `| Skill | What | Status | Version |\n|---|---|---|---|\n| [postey](postey/) | hub | stable | ${version} |\n`);
 	write('README.md', `# Postey\n\n[![Version](https://img.shields.io/badge/version-${version}-green.svg)]()\n`);
 	return root;
@@ -81,6 +82,7 @@ for (const missing of [
 	'.codex-plugin/plugin.json',
 	'.cursor-plugin/plugin.json',
 	'skills/postey/.claude-plugin/plugin.json',
+	'.grok-plugin/plugin.json',
 	'skills/postey/pack.json',
 	'.claude-plugin/marketplace.json',
 	'skills/REGISTRY.md',
