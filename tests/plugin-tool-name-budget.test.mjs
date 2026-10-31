@@ -78,8 +78,8 @@ export function checkToolNameBudget(pluginName, toolNames, retiredNames = []) {
 
 const snapshot = () =>
 	JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, 'capability-snapshot.json'), 'utf8'));
-// The hub has no plugin.json: its marketplace entry is the manifest, so the
-// entry name is both the install id and the tool prefix.
+// The entry name is the install id and the tool prefix; skills/postey's
+// plugin.json must agree (checked below).
 const pluginJson = () =>
 	JSON.parse(fs.readFileSync(path.join(ROOT, '.claude-plugin', 'marketplace.json'), 'utf8')).plugins.find(
 		(p) => p.source === './skills/postey'
@@ -97,6 +97,11 @@ const RETIRED = [
 
 test('the shipped plugin and tool list meet the gate', () => {
 	assert.deepStrictEqual(checkToolNameBudget(pluginJson().name, snapshot().tools, RETIRED), []);
+});
+
+test('skills/postey/.claude-plugin/plugin.json names the same plugin', () => {
+	const plugin = JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'), 'utf8'));
+	assert.strictEqual(plugin.name, pluginJson().name);
 });
 
 test('the marketplace entry names the same plugin', () => {

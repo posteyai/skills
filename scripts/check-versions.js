@@ -113,6 +113,9 @@ for (const { name: skill, dir: skillDir } of skills) {
       ? [[README_BADGES[skill], parseReadmeBadgeVersion(path.join(ROOT, README_BADGES[skill]))]]
       : []),
     ...(isHub
+      ? [[`skills/${skill}/.claude-plugin/plugin.json`, parsePluginJsonVersion(path.join(skillDir, '.claude-plugin', 'plugin.json'))]]
+      : []),
+    ...(isHub
       ? ['.codex-plugin/plugin.json', '.cursor-plugin/plugin.json'].map((m) => [
           m,
           parsePluginJsonVersion(path.join(ROOT, m)),

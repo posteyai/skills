@@ -1,6 +1,6 @@
 ---
 name: postey
-version: 3.2.1
+version: 3.2.2
 # No `platforms:` list. The platform set lives on the server and is mirrored into
 # capability-snapshot.json by scripts/refresh-capability-snapshot.js. A copy here
 # would be a fourth hand-maintained list agreeing with the other three and with

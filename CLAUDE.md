@@ -13,7 +13,7 @@ Note: `AGENTS.md` is a symlink to this file; edits propagate.
 ```
 skills/  (repo: posteyai/skills)
 ├── .claude-plugin/
-│   └── marketplace.json       — Marketplace catalog; each entry IS that plugin's manifest (strict: false, no plugin.json)
+│   └── marketplace.json       — Marketplace catalog; a pack's entry IS its manifest (strict: false); the hub has its own plugin.json
 ├── .claude/
 │   └── settings.json          — extraKnownMarketplaces for team auto-install
 ├── .github/workflows/
@@ -59,7 +59,7 @@ skills/  (repo: posteyai/skills)
 ## Multi-Skill Conventions
 
 - **Each skill is self-contained** in its `skills/<name>/` directory — no runtime cross-dependencies between skills.
-- **Each skill folder is a plain skill folder** — no `.claude-plugin/`, no `.mcp.json`. ClawHub refuses a folder that holds a plugin manifest. The Claude Code plugin is defined entirely by the skill's entry in `.claude-plugin/marketplace.json` (`strict: false`; the hub's entry also carries `mcpServers`, each pack's carries `dependencies: ["postey"]`). `tests/plugin-layout.test.mjs` enforces this.
+- **Each pack folder is a plain skill folder** — no `.claude-plugin/`, no `.mcp.json`. ClawHub refuses a folder that holds a plugin manifest. A pack's Claude Code plugin is defined entirely by its entry in `.claude-plugin/marketplace.json` (`strict: false`, `dependencies: ["postey"]`). **The hub is the exception:** `skills/postey/` carries `.claude-plugin/plugin.json` and `.mcp.json`, because the Claude directory blocks a submitted plugin folder with no `plugin.json`; its entry is not `strict: false` and carries no `mcpServers`. ClawHub gets the hub from a staged copy without those two files (RUNBOOK Step 2). `tests/plugin-layout.test.mjs` enforces all of this.
 - **Shared dev tooling** lives in `scripts/` at the repo root (CI checks only, never runtime code).
 - **Git tags** use the format `skills/{name}/vX.Y.Z` (e.g. `skills/postey/v1.2.0`).
 - **Version must be consistent** across: `SKILL.md` frontmatter `version:`, the marketplace entry, and `pack.json`. The CI `check-versions.js` script enforces this.
@@ -136,7 +136,7 @@ There is no build step, no lint config, and no formatter config in this repo.
 
 ## When Editing the Skill or CLI
 
-1. **Set the version with `node scripts/set-version.mjs X.Y.Z`.** It writes all eight places — `skills/postey/SKILL.md` frontmatter, the plugin entry in `.claude-plugin/marketplace.json`, `skills/postey/pack.json` (version AND the tag in `rawBase`), the `skills/REGISTRY.md` row, the README badge, and (hub only) `.codex-plugin/plugin.json` and `.cursor-plugin/plugin.json`. It fails loudly if any file or anchor is missing rather than writing seven of eight. `--check` reports without writing. Then run `node scripts/check-versions.js` — the writer and the assertion are separate programs on purpose, so a bug in one cannot silence the other.
+1. **Set the version with `node scripts/set-version.mjs X.Y.Z`.** It writes all nine places — `skills/postey/SKILL.md` frontmatter, `skills/postey/.claude-plugin/plugin.json` (hub only), the plugin entry in `.claude-plugin/marketplace.json`, `skills/postey/pack.json` (version AND the tag in `rawBase`), the `skills/REGISTRY.md` row, the README badge, and (hub only) `.codex-plugin/plugin.json` and `.cursor-plugin/plugin.json`. It fails loudly if any file or anchor is missing rather than writing seven of eight. `--check` reports without writing. Then run `node scripts/check-versions.js` — the writer and the assertion are separate programs on purpose, so a bug in one cannot silence the other.
 
    **After the release merges, push the tag: `git tag skills/postey/vX.Y.Z <merge-sha> && git push origin skills/postey/vX.Y.Z`.** pack.json's `rawBase` pins it, so every fetch-based install 404s until it exists. `scripts/check-release-tag.mjs` asserts this against the remote and runs in CI on `main` only — a release PR legitimately carries a version whose tag is not pushed yet.
 

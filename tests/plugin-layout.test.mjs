@@ -1,8 +1,15 @@
-// Every skills/<name>/ folder must stay a plain skill folder, because ClawHub's
-// `skill publish` refuses a folder holding any of these ("This looks like a
-// plugin"). The Claude Code plugin is defined by the folder's marketplace entry
-// instead (`strict: false`, no plugin.json), and Claude Code loads a source
-// whose root holds SKILL.md as a single skill.
+// Every pack folder (skills/<name>/) must stay a plain skill folder, because
+// ClawHub's `skill publish` refuses a folder holding any of these ("This looks
+// like a plugin"). A pack's Claude Code plugin is defined by its marketplace
+// entry instead (`strict: false`, no plugin.json), and Claude Code loads a
+// source whose root holds SKILL.md as a single skill.
+//
+// The hub (skills/postey) is the exception. The Claude directory
+// (claude.ai/directory/manage) validates the submitted plugin path and blocks a
+// folder with no .claude-plugin/plugin.json ("No plugin.json"), so the hub
+// carries plugin.json and .mcp.json, and its entry is NOT strict: false.
+// ClawHub publishes the hub from a staged copy with those two files removed
+// (RUNBOOK Step 2).
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -15,6 +22,10 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // Mirrors looksLikePluginFolder() in the clawhub CLI, plus .mcp.json, which
 // ClawHub's package detection counts as a bundle marker.
+const HUB = 'postey';
+// The two files the Claude directory needs at the hub's plugin root.
+const HUB_CLAUDE_MANIFESTS = ['.claude-plugin/plugin.json', '.mcp.json'];
+
 const PLUGIN_MARKERS = [
 	'openclaw.plugin.json',
 	'.claude-plugin/plugin.json',
@@ -35,7 +46,16 @@ export function checkPluginLayout(root) {
 
 	for (const name of folders) {
 		const dir = path.join(skillsDir, name);
+		const isHub = name === HUB;
+		if (isHub) {
+			for (const m of HUB_CLAUDE_MANIFESTS) {
+				if (!fs.existsSync(path.join(dir, m))) {
+					problems.push(`skills/${name}/${m} is missing: the Claude directory blocks the hub without it`);
+				}
+			}
+		}
 		for (const marker of PLUGIN_MARKERS) {
+			if (isHub && HUB_CLAUDE_MANIFESTS.includes(marker)) continue;
 			if (fs.existsSync(path.join(dir, marker))) {
 				problems.push(`skills/${name}/${marker}: ClawHub refuses a skill folder that carries it`);
 			}
@@ -55,7 +75,14 @@ export function checkPluginLayout(root) {
 			continue;
 		}
 		if (entry.name !== name) problems.push(`entry for skills/${name} is named '${entry.name}'`);
-		if (entry.strict !== false) {
+		if (name === HUB) {
+			if (entry.strict === false) {
+				problems.push(`entry '${entry.name}' must not set "strict": false — skills/${HUB} has its own plugin.json`);
+			}
+			if (entry.mcpServers) {
+				problems.push(`entry '${entry.name}' must not carry mcpServers — skills/${HUB}/.mcp.json does`);
+			}
+		} else if (entry.strict !== false) {
 			problems.push(`entry '${entry.name}' must set "strict": false — it is the plugin's only manifest`);
 		}
 	}
@@ -109,6 +136,38 @@ test('the template is held to the same rule, since ClawHub can still see it', ()
 test('a package.json with an openclaw block FAILS', () => {
 	const problems = checkPluginLayout(fixture({ extra: { 'skills/alpha/package.json': '{"openclaw":{}}' } }));
 	assert.ok(problems.some((p) => /openclaw/.test(p)));
+});
+
+function hubFixture({ manifests = HUB_CLAUDE_MANIFESTS, entry = {} } = {}) {
+	const extra = { 'skills/postey/SKILL.md': '---\nname: postey\n---\n' };
+	for (const m of manifests) extra[`skills/postey/${m}`] = '{}';
+	const root = fixture({ extra });
+	const mp = path.join(root, '.claude-plugin', 'marketplace.json');
+	const json = JSON.parse(fs.readFileSync(mp, 'utf8'));
+	json.plugins.push({ name: 'postey', source: './skills/postey', ...entry });
+	fs.writeFileSync(mp, JSON.stringify(json));
+	return root;
+}
+
+test('the hub with plugin.json, .mcp.json and a strict entry passes', () => {
+	assert.deepStrictEqual(checkPluginLayout(hubFixture()), []);
+});
+
+for (const missing of HUB_CLAUDE_MANIFESTS) {
+	test(`the hub without ${missing} FAILS (the Claude directory blocks it)`, () => {
+		const problems = checkPluginLayout(hubFixture({ manifests: HUB_CLAUDE_MANIFESTS.filter((m) => m !== missing) }));
+		assert.ok(problems.some((p) => p.includes(missing)), problems.join('\n'));
+	});
+}
+
+test('a hub entry left strict: false FAILS', () => {
+	const problems = checkPluginLayout(hubFixture({ entry: { strict: false } }));
+	assert.ok(problems.some((p) => /strict/.test(p)), problems.join('\n'));
+});
+
+test('a hub entry that also carries mcpServers FAILS', () => {
+	const problems = checkPluginLayout(hubFixture({ entry: { mcpServers: { postey: {} } } }));
+	assert.ok(problems.some((p) => /mcpServers/.test(p)), problems.join('\n'));
 });
 
 test('a skill with no marketplace entry FAILS', () => {

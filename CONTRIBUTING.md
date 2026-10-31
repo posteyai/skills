@@ -58,7 +58,8 @@ Follow the checklist in `CLAUDE.md` under "Adding a New Skill". In short: copy
 `skills/_template/`, fill in the frontmatter, add a `plugins` entry to the marketplace
 (it is the plugin manifest: `strict: false`, plus `dependencies: ["postey"]` for a pack),
 add a `REGISTRY.md` row, then run `npm test` and `claude plugin validate --strict .`.
-Never add `.claude-plugin/` or `.mcp.json` inside a skill folder: ClawHub refuses it.
+Never add `.claude-plugin/` or `.mcp.json` inside a pack folder: ClawHub refuses it. The hub
+(`skills/postey`) is the one exception; the Claude directory needs its `plugin.json`.
 
 Name the skill for the job someone asks for, not for the API surface it touches, and
 keep the `postey-` prefix — registry slugs and loose installs share one flat namespace.

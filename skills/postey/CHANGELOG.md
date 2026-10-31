@@ -4,6 +4,13 @@ All notable user-facing changes to the Postey skill and its CLI are documented h
 
 The format is based on Keep a Changelog.
 
+## 3.2.2
+
+**Claude directory listing unblocked.** The plugin folder ships `.claude-plugin/plugin.json` and
+`.mcp.json` again. The Claude directory blocks a plugin folder without `plugin.json`, so 3.2.1's
+manifest-less layout could not be listed. Installing the plugin still registers the Postey MCP
+server (`https://mcp.postey.ai/mcp`); nothing else changes for users.
+
 ## 3.2.1 (postey-video 1.0.3)
 
 **Refreshed capability snapshot.** The bundled `capability-snapshot.json` (shipped in both `postey`
