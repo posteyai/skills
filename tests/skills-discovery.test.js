@@ -51,3 +51,20 @@ test('discovers the real skills tree', () => {
 test('returns an empty array for a missing directory', () => {
   assert.deepStrictEqual(discoverSkills(path.join(FIXTURE, 'does-not-exist')), []);
 });
+
+// `npx skills add` (skills.sh) ignores the underscore and installs anything with a
+// SKILL.md unless its frontmatter says `metadata: internal: true`.
+const INTERNAL = /^metadata:\s*\n\s+internal:\s*true\s*$/m;
+const fs = require('node:fs');
+const frontmatter = dir =>
+  fs.readFileSync(path.join(dir, 'SKILL.md'), 'utf8').match(/^---\s*\n([\s\S]*?)\n---/)[1];
+
+test('the template is hidden from npx skills add', () => {
+  assert.match(frontmatter(path.join(__dirname, '..', 'templates', 'skill')), INTERNAL);
+});
+
+test('no real skill is hidden from npx skills add', () => {
+  for (const skill of discoverSkills(path.join(__dirname, '..', 'skills'))) {
+    assert.doesNotMatch(frontmatter(skill.dir), INTERNAL, `${skill.name} was copied with the template's internal flag`);
+  }
+});

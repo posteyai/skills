@@ -29,7 +29,7 @@ node scripts/check-leaks.js .
 
 | Check | Catches |
 |---|---|
-| `check-versions` | A version updated in one of the six places and not the other five |
+| `check-versions` | A version updated in one place and not the others |
 | `check-leaks` | Secret-shaped strings, and internal names that should not be in a public repo |
 | `check-doc-commands` | A documented command that does not exist in the CLI |
 | `check-cross-skill-links` | A skill referencing a file it does not ship |
@@ -37,8 +37,8 @@ node scripts/check-leaks.js .
 
 ## Changing a skill
 
-**Version lives in six places and they must agree**: `SKILL.md` frontmatter,
-`.claude-plugin/plugin.json`, the entry in `.claude-plugin/marketplace.json`,
+**Version lives in several places and they must agree**: `SKILL.md` frontmatter,
+the entry in `.claude-plugin/marketplace.json`,
 `pack.json` (both `version` and the tag inside `rawBase`), the `skills/REGISTRY.md`
 row, and the README badge. `check-versions.js` fails the build otherwise.
 
@@ -55,8 +55,11 @@ behaviour changes, bug fixes. Skip internal refactors and CI-only edits.
 ## Adding a skill
 
 Follow the checklist in `CLAUDE.md` under "Adding a New Skill". In short: copy
-`skills/_template/`, fill in the frontmatter and `plugin.json`, add a `plugins` entry
-to the marketplace, add a `REGISTRY.md` row, then run `npm test`.
+`templates/skill/` to `skills/<name>/`, fill in the frontmatter, add a `plugins` entry to the marketplace
+(it is the plugin manifest: `strict: false`, plus `dependencies: ["postey"]` for a pack),
+add a `REGISTRY.md` row, then run `npm test` and `claude plugin validate --strict .`.
+Never add `.claude-plugin/` or `.mcp.json` inside a pack folder: ClawHub refuses it. The hub
+(`skills/postey`) is the one exception; the Claude directory needs its `plugin.json`.
 
 Name the skill for the job someone asks for, not for the API surface it touches, and
 keep the `postey-` prefix — registry slugs and loose installs share one flat namespace.

@@ -9,7 +9,7 @@
 [![Postey](https://img.shields.io/badge/Postey-postey.ai-3B9AF8)](https://postey.ai)
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-ai.postey%2Fpostey-6E56CF)](https://registry.modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.2.0-green.svg)]()
+[![Version](https://img.shields.io/badge/version-3.2.2-green.svg)]()
 
 </div>
 
@@ -26,11 +26,11 @@ Works with Claude, Claude Code, Cursor, Windsurf, Codex, Gemini CLI, GitHub Copi
 Connect the hosted MCP server. Nothing to install, and connecting is free.
 
 ```
-https://srvr.postey.ai/mcp
+https://mcp.postey.ai/mcp
 ```
 
 ```bash
-claude mcp add --transport http postey https://srvr.postey.ai/mcp
+claude mcp add --transport http postey https://mcp.postey.ai/mcp
 ```
 
 Then ask your agent for what you want:
@@ -48,7 +48,7 @@ If you arrived here from an MCP registry, the server is what you want.
 
 | | |
 |---|---|
-| **Endpoint** | `https://srvr.postey.ai/mcp` |
+| **Endpoint** | `https://mcp.postey.ai/mcp` |
 | **Transport** | Streamable HTTP, hosted |
 | **Registry** | [`ai.postey/postey`](https://registry.modelcontextprotocol.io) in the official MCP Registry |
 | **Tools** | 33, plus MCP resources and prompts |
@@ -61,7 +61,7 @@ Two ways to authenticate:
 - **OAuth 2.1 + PKCE**, with dynamic client registration. Interactive, so it needs a browser.
 - **`X-API-Key: mk_...`** for headless and CI agents, created under **AI & Agents → Advanced** in [the Postey app](https://app.postey.ai?settings=agents&section=advanced). There is no `client_credentials` grant, so this is the only browserless path.
 
-The server publishes a machine-readable summary at [`/connect`](https://srvr.postey.ai/connect) and a full tool list at [`/.well-known/mcp/server-card.json`](https://srvr.postey.ai/.well-known/mcp/server-card.json). Neither needs a credential.
+The server publishes a machine-readable summary at [`/connect`](https://mcp.postey.ai/connect) and a full tool list at [`/.well-known/mcp/server-card.json`](https://mcp.postey.ai/.well-known/mcp/server-card.json). Neither needs a credential.
 
 ## The skill and the server are layers, not alternatives
 
@@ -144,13 +144,19 @@ Use the shell commands above rather than the `/plugin` slash commands. The slash
 npx -y skills add posteyai/skills -a <agent> -s postey -y
 ```
 
-All three flags matter. `-a` and `-y` stop the CLI prompting for scope, agent and skill, which hangs an unattended run. `-s postey` stops it also installing this repo's skill template as a second skill called `skill-name`. Run `npx -y skills add posteyai/skills --list` to print the ids. Hermes Agent is `hermes-agent`, not `hermes`.
+All three flags matter. `-a` and `-y` stop the CLI prompting for scope, agent and skill, which hangs an unattended run. `-s postey` installs the hub alone; the packs are opt-in. Run `npx -y skills add posteyai/skills --list` to print the ids. Hermes Agent is `hermes-agent`, not `hermes`.
 
 **Manual:**
 
 Clone this repository and copy `skills/postey/` into the directory your agent reads. That is `.claude/skills/` for Claude Code and `.agents/skills/` for roughly eighteen others, including Cursor, Codex, Gemini CLI, Copilot and opencode. Claude Code does not read `.agents/skills/`.
 
 </details>
+
+### Grok Build
+
+Type `/marketplace` in Grok Build, find **Postey** and press `i`. This installs the whole repo as one plugin: the hub, every pack, and the hosted MCP server from [`.mcp.json`](.mcp.json). Sign in with your Postey account on first connect.
+
+The plugin talks to two Postey hosts and nothing else: `https://mcp.postey.ai/mcp` (the MCP server, OAuth or `X-API-Key`) and `https://srvr.postey.ai` (the bundled CLI's API and OAuth endpoints, only when a skill runs it). See [Credentials](#credentials).
 
 ### Connect the MCP server
 

@@ -68,7 +68,7 @@ Four rules bind every track.
 1. Never block. If a command waits for a keystroke, you passed the wrong flags. Fix
    the flags. Do not wait.
 2. Never assume. Every step ends in a verification. Run it.
-3. Never proxy. Register the address `https://srvr.postey.ai/mcp` in your own client's
+3. Never proxy. Register the address `https://mcp.postey.ai/mcp` in your own client's
    remote-server configuration. Never wrap it in a local process, and never route it
    through another agent. Step 2 says what that rules out.
 4. Never fake. If the Postey tools are absent from this session, stop and say so. A local file,
@@ -82,7 +82,7 @@ around that.
 
 ## Step 1 — Check prerequisites
 
-Confirm that `https://srvr.postey.ai` is reachable.
+Confirm that `https://mcp.postey.ai` (the MCP server) and `https://srvr.postey.ai` (sign-in) are reachable.
 
 A healthy server answers in ways that look like errors. Read them as success.
 
@@ -99,7 +99,7 @@ Do not treat it as a fault.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Network timeout to `srvr.postey.ai` | Offline, or egress blocked | Restore connectivity. A corporate proxy must allow `srvr.postey.ai` |
+| Network timeout to `mcp.postey.ai` or `srvr.postey.ai` | Offline, or egress blocked | Restore connectivity. A corporate proxy must allow both `mcp.postey.ai` and `srvr.postey.ai` |
 | TLS error | The proxy intercepts TLS | Add the proxy certificate authority to your trust store |
 
 ---
@@ -113,9 +113,9 @@ cannot do this yourself. Give the user the steps and wait.
 
 | Client | Steps |
 |---|---|
-| Claude on the web | Open <https://claude.ai/settings/connectors>, choose **Add custom connector**, paste `https://srvr.postey.ai/mcp`, then authorize |
+| Claude on the web | Open <https://claude.ai/settings/connectors>, choose **Add custom connector**, paste `https://mcp.postey.ai/mcp`, then authorize |
 | Claude Desktop | Open Settings, then **Connectors**, then **Add custom connector**, and use the same address. This needs a paid plan |
-| ChatGPT | Open Settings, then **Apps**, then **Advanced**, and turn on **Developer Mode**. Choose **Create app**, paste the address, then authorize |
+| ChatGPT | Open **Plugins**, select **+**, then **Add custom MCP server**. Name it Postey, paste the address, authorize, tick the risk warning, then select **Create**. Developer Mode is no longer needed |
 
 A connector authorizes through OAuth in the browser. Track B therefore needs no
 credential from Step 3. Go to Step 6 once the user reports that the connector is
@@ -180,7 +180,7 @@ your own session is unconnected if it is.
 This command writes native configuration for 16 clients. Try it first.
 
 ```
-npx -y add-mcp https://srvr.postey.ai/mcp -n postey -a <agent> -g -y
+npx -y add-mcp https://mcp.postey.ai/mcp -n postey -a <agent> -g -y
 ```
 
 Replace `<agent>` with your identifier: `claude-code`, `claude-desktop`, `cursor`,
@@ -198,12 +198,12 @@ below by hand.
 
 | Agent | Command |
 |---|---|
-| Claude Code | `claude mcp add --transport http postey https://srvr.postey.ai/mcp --scope user` |
-| Codex CLI | `codex mcp add postey --url https://srvr.postey.ai/mcp` |
-| Gemini CLI | `gemini mcp add --transport http postey https://srvr.postey.ai/mcp` |
+| Claude Code | `claude mcp add --transport http postey https://mcp.postey.ai/mcp --scope user` |
+| Codex CLI | `codex mcp add postey --url https://mcp.postey.ai/mcp` |
+| Gemini CLI | `gemini mcp add --transport http postey https://mcp.postey.ai/mcp` |
 | Hermes Agent | See the three `hermes config set` calls below. No `mcp add` option writes `skip_preflight` |
-| VS Code | `code --add-mcp '{"name":"postey","type":"http","url":"https://srvr.postey.ai/mcp"}'` |
-| Amp | `amp mcp add postey https://srvr.postey.ai/mcp` |
+| VS Code | `code --add-mcp '{"name":"postey","type":"http","url":"https://mcp.postey.ai/mcp"}'` |
+| Amp | `amp mcp add postey https://mcp.postey.ai/mcp` |
 
 `claude mcp add` is not idempotent. A second run fails with `already exists`. Treat
 that message as success. `codex mcp add` updates in place and is safe to repeat.
@@ -221,17 +221,17 @@ silently. Use the row for your client.
 
 | Agent | File | Top-level key | Entry |
 |---|---|---|---|
-| Claude Code | `~/.claude.json` or `.mcp.json` | `mcpServers` | `{"type": "http", "url": "https://srvr.postey.ai/mcp"}` |
-| Cursor | `~/.cursor/mcp.json` | `mcpServers` | `{"url": "https://srvr.postey.ai/mcp"}` |
-| Windsurf | `~/.codeium/windsurf/mcp_config.json` | `mcpServers` | `{"serverUrl": "https://srvr.postey.ai/mcp"}` |
-| VS Code | `.vscode/mcp.json` | `servers` | `{"type": "http", "url": "https://srvr.postey.ai/mcp"}` |
-| Gemini CLI | `~/.gemini/settings.json` | `mcpServers` | `{"httpUrl": "https://srvr.postey.ai/mcp"}` |
-| Cline, Roo Code | the client MCP settings file | `mcpServers` | `{"type": "streamableHttp", "url": "https://srvr.postey.ai/mcp"}` |
-| Amp | `settings.json` | `amp.mcpServers` | `{"type": "streamableHttp", "url": "https://srvr.postey.ai/mcp"}` |
-| opencode | `opencode.json` | `mcp` | `{"type": "remote", "url": "https://srvr.postey.ai/mcp", "enabled": true}` |
-| Kiro, Junie, LM Studio | the client MCP settings file | `mcpServers` | `{"url": "https://srvr.postey.ai/mcp"}` |
+| Claude Code | `~/.claude.json` or `.mcp.json` | `mcpServers` | `{"type": "http", "url": "https://mcp.postey.ai/mcp"}` |
+| Cursor | `~/.cursor/mcp.json` | `mcpServers` | `{"url": "https://mcp.postey.ai/mcp"}` |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` | `mcpServers` | `{"serverUrl": "https://mcp.postey.ai/mcp"}` |
+| VS Code | `.vscode/mcp.json` | `servers` | `{"type": "http", "url": "https://mcp.postey.ai/mcp"}` |
+| Gemini CLI | `~/.gemini/settings.json` | `mcpServers` | `{"httpUrl": "https://mcp.postey.ai/mcp"}` |
+| Cline, Roo Code | the client MCP settings file | `mcpServers` | `{"type": "streamableHttp", "url": "https://mcp.postey.ai/mcp"}` |
+| Amp | `settings.json` | `amp.mcpServers` | `{"type": "streamableHttp", "url": "https://mcp.postey.ai/mcp"}` |
+| opencode | `opencode.json` | `mcp` | `{"type": "remote", "url": "https://mcp.postey.ai/mcp", "enabled": true}` |
+| Kiro, Junie, LM Studio | the client MCP settings file | `mcpServers` | `{"url": "https://mcp.postey.ai/mcp"}` |
 | Goose | `~/.config/goose/config.yaml` | `extensions` | `type: streamable_http` with `uri`, in YAML |
-| Zed | `settings.json` | `context_servers` | `{"url": "https://srvr.postey.ai/mcp"}` |
+| Zed | `settings.json` | `context_servers` | `{"url": "https://mcp.postey.ai/mcp"}` |
 
 Zed takes a remote entry under `context_servers`: a `url`, and no command. With no
 `Authorization` header set, it runs the standard MCP OAuth flow and asks the user to
@@ -240,7 +240,7 @@ sign in, which is what track A wants. Track C has no browser, so it sets the hea
 ```json
 "context_servers": {
   "postey": {
-    "url": "https://srvr.postey.ai/mcp",
+    "url": "https://mcp.postey.ai/mcp",
     "headers": { "X-API-Key": "<the key>" }
   }
 }
@@ -258,7 +258,7 @@ Codex CLI uses TOML, not JSON. Write this into `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.postey]
-url = "https://srvr.postey.ai/mcp"
+url = "https://mcp.postey.ai/mcp"
 ```
 
 Hermes Agent keeps its servers in `~/.hermes/config.yaml` and refuses a direct write to that
@@ -272,7 +272,7 @@ Track C, headless — the common case for Hermes, which runs as a background
 service and cannot reach a browser:
 
 ```
-hermes config set mcp_servers.postey.url https://srvr.postey.ai/mcp
+hermes config set mcp_servers.postey.url https://mcp.postey.ai/mcp
 hermes config set mcp_servers.postey.auth none
 hermes config set mcp_servers.postey.headers.X-API-Key <the key>
 hermes config set mcp_servers.postey.skip_preflight true
@@ -281,7 +281,7 @@ hermes config set mcp_servers.postey.skip_preflight true
 Track A, a Hermes you drive yourself and that can open a browser:
 
 ```
-hermes config set mcp_servers.postey.url https://srvr.postey.ai/mcp
+hermes config set mcp_servers.postey.url https://mcp.postey.ai/mcp
 hermes config set mcp_servers.postey.auth oauth
 hermes config set mcp_servers.postey.skip_preflight true
 ```
@@ -391,8 +391,8 @@ Never write the key into a file that a repository tracks. A container or a
 continuous-integration job should inject it as a secret, the same way as any other.
 The store holds it in plain text, so if it leaks, revoke it and create another.
 
-The plan still decides what the key can *do*. Publishing, scheduling, analytics and
-auto-DM are gated one by one, so a free-plan key connects and reads, then answers
+The plan still decides what the key can *do*. Publishing, scheduling and
+analytics are gated one by one, so a free-plan key connects and reads, then answers
 `402` on the call that needs a paid feature. That is a limit on the action, not on
 the key.
 
@@ -502,7 +502,7 @@ wants — a pack the user never asked for is context they pay for on every turn.
 | `postey-ideas` | turn a trend or a rough idea into per-platform posts |
 | `postey-video` | transcribe a video and cross-post it, or post local video files |
 | `postey-voice` | have the agent learn how they write and keep matching it |
-| `postey-engagement` | reply to comments, or run comment-to-DM funnels |
+| `postey-engagement` | reply to comments, or see running automations |
 | `postey-analytics` | read what worked and decide what to make next |
 | `postey-ops` | check things actually published, and chase what failed |
 | `postey-teams` | send drafts for review before anything goes out |

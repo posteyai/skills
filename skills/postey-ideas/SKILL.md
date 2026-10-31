@@ -1,6 +1,6 @@
 ---
 name: postey-ideas
-version: 1.0.0
+version: 1.0.1
 description: >
   Decide what to post. Turn something trending, or one rough idea, into a per-platform
   set of drafts — using hooks that earn replies and saves, post structures measured

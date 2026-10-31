@@ -2,7 +2,7 @@
   "mcpServers": {
     "postey": {
       "type": "http",
-      "url": "https://srvr.postey.ai/mcp"
+      "url": "https://mcp.postey.ai/mcp"
     }
   }
 }

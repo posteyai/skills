@@ -1,6 +1,6 @@
 ---
 name: postey
-version: 3.2.0
+version: 3.2.2
 # No `platforms:` list. The platform set lives on the server and is mirrored into
 # capability-snapshot.json by scripts/refresh-capability-snapshot.js. A copy here
 # would be a fourth hand-maintained list agreeing with the other three and with
@@ -43,6 +43,7 @@ mcp-tools:
     - delete_draft
     - file_manager
     - get_posts
+    - get_review_status
     - get_schedule
     - link_cli
     - list_files
@@ -98,6 +99,7 @@ capabilities:
     - post.delete
     - post.convert
     - post.review
+    - post.review.status
     - post.validate
     - post.tag.add
     - post.tag.remove
@@ -173,7 +175,7 @@ reachable. If the Postey tools are absent from your session, stop and say so. Th
 here that reaches Postey state, so looking for one wastes the user's time.
 
 Say what to do next, rather than only that you are stuck. The server address is
-`https://srvr.postey.ai/mcp`, registered natively in your own client — never behind a local
+`https://mcp.postey.ai/mcp`, registered natively in your own client — never behind a local
 bridge. A client that can open a browser finishes OAuth. A browserless one (CI, container, cron)
 cannot: there is no `client_credentials` grant, so it needs an MCP key (`mk_…`) sent as
 `X-API-Key`, and you cannot create that key yourself. Per-client registration commands and config
@@ -200,7 +202,7 @@ paths: <https://raw.githubusercontent.com/posteyai/skills/main/setup.md>. The ke
      `get_posts`) always use the tool.
 
 4. **Content validation or virality review** before publishing?
-   → **MCP tools** — `validate_post_content`, `review_post` — no CLI equivalent; do not skip these in any MCP-capable session.
+   → **MCP tools** — `validate_post_content`, `review_post` — no CLI equivalent; do not skip these in any MCP-capable session. `review_post` returns a `job_id` and runs 60-120 seconds; collect the result with `get_review_status` (by `job_id`, or `post_id` if the handle was lost), repeating while `status` is `running`.
 
 5. **All other writes** (create, update, publish, schedule, delete, tag, upload by URL)?
    → **MCP tools, in every environment** — `create_post`, `update_post`, `publish_draft`, `schedule_post`, `delete_draft`.

@@ -1,9 +1,9 @@
-// Cutting a release means writing the same version into seven places. Six of
-// them are asserted afterwards by check-versions.js; the seventh — the tag
-// inside pack.json's rawBase — is asserted by pack-manifest.test.js. Both only
+// Cutting a release means writing the same version into every place listed in
+// edits() below. All but one are asserted afterwards by check-versions.js; the
+// tag inside pack.json's rawBase is asserted by pack-manifest.test.js. Both only
 // ever catch the mistake after a human has made it.
 //
-// This writes all seven from one argument, so the hand edit that check-versions
+// This writes all of them from one argument, so the hand edit that check-versions
 // exists to police stops happening. check-versions.js stays exactly as it is:
 // the writer and the assertion are deliberately separate programs, so a bug
 // here cannot silence the check that would catch it.
@@ -44,8 +44,11 @@ function edits(skill, version, root) {
 			apply: (s) => replaceOne(s, /^(version:\s*)(\S+)\s*$/m, `$1${version}`)
 		},
 		{
+			// Only the hub carries a plugin.json (the Claude directory needs one);
+			// packs stay plain skill folders for ClawHub.
 			file: path.join(skillDir, '.claude-plugin', 'plugin.json'),
 			what: 'plugin.json',
+			skip: skill !== 'postey',
 			apply: (s) => replaceOne(s, /("version":\s*")([^"]+)(")/, `$1${version}$3`)
 		},
 		{
@@ -74,7 +77,7 @@ function edits(skill, version, root) {
 			skip: skill !== 'postey', // the repo-level badge tracks postey only
 			apply: (s) => replaceOne(s, /(badge\/version-)([0-9.]+)(-)/, `$1${version}$3`)
 		},
-		// Codex and Cursor read their own root manifests. Like the README badge
+		// Codex, Cursor and Grok read their own root manifests. Like the README badge
 		// these track the hub, because that is the plugin both agents install —
 		// a pack ships inside it, not as a separate listing. Left out here they
 		// would go on advertising a stale version to two whole ecosystems, and
@@ -88,6 +91,12 @@ function edits(skill, version, root) {
 		{
 			file: path.join(root, '.cursor-plugin', 'plugin.json'),
 			what: '.cursor-plugin/plugin.json',
+			skip: skill !== 'postey',
+			apply: (s) => replaceOne(s, /("version":\s*")([^"]+)(")/, `$1${version}$3`)
+		},
+		{
+			file: path.join(root, '.grok-plugin', 'plugin.json'),
+			what: '.grok-plugin/plugin.json',
 			skip: skill !== 'postey',
 			apply: (s) => replaceOne(s, /("version":\s*")([^"]+)(")/, `$1${version}$3`)
 		}

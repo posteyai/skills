@@ -7,6 +7,12 @@ name: skill-name
 description: >
   One-sentence pitch: what this skill does and for whom.
 
+# Template only — DELETE this block when you copy the template. `internal: true`
+# hides a skill from `npx skills add`, so without it this scaffold installs as a
+# real skill called "skill-name" and gets listed on skills.sh.
+metadata:
+  internal: true
+
 # Optional: additional trigger phrases / examples. Appended to description.
 # when_to_use: >
 #   Use when user asks to: do X, do Y, check Z.

@@ -1,14 +1,14 @@
 ---
 name: postey-engagement
-version: 1.1.0
+version: 2.0.1
 description: >
-  Read and reply to the comments your posts actually got, and run comment-to-DM
-  automations, without sounding like a bot. Covers triage, tone, escalation and
-  when not to reply at all.
+  Read and reply to the comments your posts actually got, and see which
+  automations are running, without sounding like a bot. Covers triage, tone,
+  escalation and when not to reply at all.
 when_to_use: >
   Use when the user asks what people said on a post, wants to reply to comments,
-  asks to catch up on their inbox, wants a "comment X and I'll DM you" funnel set
-  up, or asks why a reply should or should not be sent.
+  asks to catch up on their inbox, asks which automations are running, or asks why
+  a reply should or should not be sent.
 
 # Requires the `postey` skill: accounts, the write path, and the craft layer that
 # defines each platform's register.
@@ -20,7 +20,6 @@ capabilities:
     - comment.platform.list
     - comment.platform.reply
     - automation.list
-    - schedule.auto_dm
   reads:
     - notification.list
     - post.list
@@ -35,7 +34,6 @@ mcp-tools:
     - postey://posts/{post_id}/content/{platform}
   tools:
     # GENERATED from capabilities: by scripts/gen-mcp-tools.js — do not hand-edit.
-    - configure_auto_dm
     - get_platform_comments
     - get_posts
     - reply_comment
@@ -113,27 +111,13 @@ Three rules that survive every platform:
 `reply_comment` is a public write. Draft every reply, show them together, and send only
 what the user approves. Batch approval is fine — silent sending is not.
 
-## Auto-DM funnels
+## Automations
 
-`configure_auto_dm` sets up "comment X and I'll send you Y". Read the account's existing
-automations first (`postey://accounts/{account_id}/automations`) — a second automation on the same
-trigger word competes with the first.
-
-Design rules:
-
-- **One trigger, one thing delivered.** A trigger that sends different payloads depending on
-  context will misfire and cannot be debugged from the outside.
-- **Say what happens in the post itself.** "Comment PLAYBOOK and I'll DM it to you" is honest;
-  a silent DM to anyone who comments is not, and platforms treat it as unsolicited messaging.
-- **Check the platform allows it** before promising it. DM automation rules differ per platform and
-  change; read `postey://platforms/{platform}/rules` rather than assuming.
+Automations are read-only here. Read the account's running automations
+(`postey://accounts/{account_id}/automations`) to answer "what is running?". Creating, changing
+or removing one is done in the Postey app, not through this server.
 
 An automation the user forgot about is still sending DMs in their name. When listing automations,
-name every active one, not just the one being changed.
-
-**Arming one needs an explicit yes, in the turn you arm it.** `configure_auto_dm` is not a draft.
-Once it is live it messages every person who hits the trigger, with no further review, for as long
-as it stays on. Show the user the trigger word, the exact payload, the account and the post it
-attaches to, and wait for them to approve that. This is a stricter gate than replies get: a batch of replies is a
-finite list the user can read, while one armed funnel keeps messaging strangers after the
-conversation ends. One arming, one yes — batch approval does not carry here. A request to "set up a funnel" is not approval of the message it will send.
+name every active one, not just the one being asked about. For auto-DM rules and post actions the
+`running` flag is authoritative and `status` is not. Conversation `scripts` carry no `running`
+flag: read their `status` and `binding.state`.

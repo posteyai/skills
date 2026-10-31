@@ -1,0 +1,20 @@
+{
+  "name": "postey",
+  "version": "3.2.2",
+  "description": "Draft, schedule and publish social posts across X, LinkedIn, Instagram, TikTok, YouTube, Threads, Bluesky, Facebook and Pinterest via Postey's hosted MCP server. One draft per network against each one's real limits; nothing publishes until you approve. Sign in with your Postey account on first connect.",
+  "author": {
+    "name": "Postey",
+    "email": "support@postey.ai",
+    "url": "https://postey.ai"
+  },
+  "homepage": "https://postey.ai/mcp",
+  "repository": "https://github.com/posteyai/skills",
+  "license": "MIT",
+  "keywords": [
+    "postey",
+    "postey ai",
+    "postey mcp",
+    "postey social"
+  ],
+  "logo": "skills/postey/assets/icon.png"
+}

@@ -13,7 +13,10 @@ Note: `AGENTS.md` is a symlink to this file; edits propagate.
 ```
 skills/  (repo: posteyai/skills)
 ├── .claude-plugin/
-│   └── marketplace.json       — Marketplace catalog listing all plugins
+│   └── marketplace.json       — Marketplace catalog; a pack's entry IS its manifest (strict: false); the hub has its own plugin.json
+├── .grok-plugin/
+│   └── plugin.json            — Grok Build manifest; the whole repo is the plugin (xai-org/plugin-marketplace pins a commit of it)
+├── .mcp.json                  — The hosted Postey MCP server for the Grok Build plugin; must match skills/postey/.mcp.json
 ├── .claude/
 │   └── settings.json          — extraKnownMarketplaces for team auto-install
 ├── .github/workflows/
@@ -22,7 +25,7 @@ skills/  (repo: posteyai/skills)
 │   ├── lib/
 │   │   ├── skills.js          — discoverSkills(): the single definition of "what counts as a skill". Every multi-skill check consumes this
 │   │   └── cross-skill-links.js — reference scanner (markdown links + backtick refs) behind check-cross-skill-links.js
-│   ├── check-versions.js      — CI: verify SKILL.md version == plugin.json == marketplace == pack.json == REGISTRY.md == README badge (per skill) == .codex-plugin == .cursor-plugin
+│   ├── check-versions.js      — CI: verify SKILL.md version == marketplace == pack.json == REGISTRY.md == README badge (per skill) == .codex-plugin == .cursor-plugin
 │   ├── set-version.mjs        — write every version place from one argument (release step; --check to dry-run)
 │   ├── check-release-tag.mjs  — CI on main: the released version's tag exists on the remote (rawBase pins it)
 │   ├── check-cross-skill-links.js — CI: no skill may reference a file it does not ship
@@ -37,12 +40,11 @@ skills/  (repo: posteyai/skills)
 │   ├── cross-skill-links.test.js — reference gate: leak/dangling/history cases
 │   ├── fixtures/              — synthetic skill trees for the two suites above
 │   └── pack-manifest.test.js  — pack.json completeness + version + tag-pinned rawBase, per skill
+├── templates/
+│   └── skill/                 — Starter template for new skills (copy and fill in). Kept out of skills/ so whole-repo installers (Grok, Codex) don't ship it
 └── skills/
     ├── REGISTRY.md            — Index of all skills in this repo
-    ├── _template/             — Starter template for new skills (copy and fill in)
     └── postey/                — The postey skill
-        ├── .claude-plugin/
-        │   └── plugin.json    — Plugin manifest (required for /plugin install)
         ├── SKILL.md           — Authoritative skill spec (< 500 lines)
         ├── CHANGELOG.md       — User-facing changelog
         ├── command-reference.md — Full command table (loaded on demand)
@@ -61,11 +63,11 @@ skills/  (repo: posteyai/skills)
 ## Multi-Skill Conventions
 
 - **Each skill is self-contained** in its `skills/<name>/` directory — no runtime cross-dependencies between skills.
-- **Each skill must have** `skills/<name>/.claude-plugin/plugin.json` for the plugin install flow to work.
+- **Each pack folder is a plain skill folder** — no `.claude-plugin/`, no `.mcp.json`. ClawHub refuses a folder that holds a plugin manifest. A pack's Claude Code plugin is defined entirely by its entry in `.claude-plugin/marketplace.json` (`strict: false`, `dependencies: ["postey"]`). **The hub is the exception:** `skills/postey/` carries `.claude-plugin/plugin.json` and `.mcp.json`, because the Claude directory blocks a submitted plugin folder with no `plugin.json`; its entry is not `strict: false` and carries no `mcpServers`. ClawHub gets the hub from a staged copy without those two files (RUNBOOK Step 2). `tests/plugin-layout.test.mjs` enforces all of this.
 - **Shared dev tooling** lives in `scripts/` at the repo root (CI checks only, never runtime code).
 - **Git tags** use the format `skills/{name}/vX.Y.Z` (e.g. `skills/postey/v1.2.0`).
-- **Version must be consistent** across: `SKILL.md` frontmatter `version:`, `plugin.json`, and the marketplace entry. The CI `check-versions.js` script enforces this.
-- **To add a new skill**: copy `skills/_template/` to `skills/<new-name>/`, fill in the SKILL.md and plugin.json, add a `plugins` entry in `.claude-plugin/marketplace.json`, and add a row to `skills/REGISTRY.md`.
+- **Version must be consistent** across: `SKILL.md` frontmatter `version:`, the marketplace entry, and `pack.json`. The CI `check-versions.js` script enforces this.
+- **To add a new skill**: copy `templates/skill/` to `skills/<new-name>/`, fill in the SKILL.md, add a `plugins` entry (copy a pack's entry: `strict: false` plus `dependencies`) in `.claude-plugin/marketplace.json`, and add a row to `skills/REGISTRY.md`.
 
 ## CLI Architecture (`skills/postey/scripts/postey.js`)
 
@@ -127,7 +129,7 @@ node scripts/check-doc-commands.js
 MCP_TOOLS_DIR=../postey-backend/app/core/mcp/tools node scripts/check-mcp-tool-sync.js
 
 # Check MCP tool sync (runtime mode — requires live server + API key)
-MCP_SERVER_URL=https://srvr.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
+MCP_SERVER_URL=https://mcp.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
 
 # Smoke test (requires a real API key)
 ./skills/postey/scripts/postey.js setup
@@ -138,7 +140,7 @@ There is no build step, no lint config, and no formatter config in this repo.
 
 ## When Editing the Skill or CLI
 
-1. **Set the version with `node scripts/set-version.mjs X.Y.Z`.** It writes all nine places — `skills/postey/SKILL.md` frontmatter, `skills/postey/.claude-plugin/plugin.json`, the plugin entry in `.claude-plugin/marketplace.json`, `skills/postey/pack.json` (version AND the tag in `rawBase`), the `skills/REGISTRY.md` row, the README badge, and (hub only) `.codex-plugin/plugin.json` and `.cursor-plugin/plugin.json`. It fails loudly if any file or anchor is missing rather than writing eight of nine. `--check` reports without writing. Then run `node scripts/check-versions.js` — the writer and the assertion are separate programs on purpose, so a bug in one cannot silence the other.
+1. **Set the version with `node scripts/set-version.mjs X.Y.Z`.** It writes all ten places — `skills/postey/SKILL.md` frontmatter, `skills/postey/.claude-plugin/plugin.json` (hub only), the plugin entry in `.claude-plugin/marketplace.json`, `skills/postey/pack.json` (version AND the tag in `rawBase`), the `skills/REGISTRY.md` row, the README badge, and (hub only) `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json` and `.grok-plugin/plugin.json`. It fails loudly if any file or anchor is missing rather than writing nine of ten. `--check` reports without writing. Then run `node scripts/check-versions.js` — the writer and the assertion are separate programs on purpose, so a bug in one cannot silence the other.
 
    **After the release merges, push the tag: `git tag skills/postey/vX.Y.Z <merge-sha> && git push origin skills/postey/vX.Y.Z`.** pack.json's `rawBase` pins it, so every fetch-based install 404s until it exists. `scripts/check-release-tag.mjs` asserts this against the remote and runs in CI on `main` only — a release PR legitimately carries a version whose tag is not pushed yet.
 
@@ -168,7 +170,7 @@ CI enforces this via `check-mcp-tool-sync.js`.
   ```
 - **Runtime mode** (live server): fetches `postey://skill-manifest` resource.
   ```bash
-  MCP_SERVER_URL=https://srvr.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
+  MCP_SERVER_URL=https://mcp.postey.ai POSTEY_API_KEY=mk_... node scripts/check-mcp-tool-sync.js
   ```
   Set `MCP_STAGING_URL` as a GitHub Actions secret to enable runtime verification in CI.
 
@@ -202,7 +204,7 @@ When creating a skill that has an MCP server counterpart:
 4. List all MCP prompts in `mcp-tools.prompts:` (prompt names, no prefix)
 5. Add `routing:` block with machine-readable routing rules
 6. Set `MCP_TOOLS_DIR` in CI workflow env to enable drift detection
-7. Copy `_template/SKILL.md` for the scaffold (it includes the commented sections)
+7. Copy `templates/skill/SKILL.md` for the scaffold (it includes the commented sections)
 
 ## Adding a New MCP Tool
 
@@ -235,11 +237,11 @@ When adding a prompt to `postey-backend/app/core/mcp/prompts.py`:
 
 ## Adding a New Skill
 
-1. Copy `skills/_template/` to `skills/<new-name>/`.
+1. Copy `templates/skill/` to `skills/<new-name>/`.
 2. Fill in `SKILL.md` frontmatter: name, version (start at `1.0.0`), platforms, description,
    `allowed-tools:`, `mcp-tools:` (tools, resources, prompts), and `routing:`.
-3. Fill in `.claude-plugin/plugin.json` (name, version, author, etc.).
-4. Add a `plugins` entry in `.claude-plugin/marketplace.json`.
+3. Add a `plugins` entry in `.claude-plugin/marketplace.json` (name, source, version, author, `strict: false`, `dependencies`). It is the plugin manifest; do not add a `plugin.json` to the skill folder.
+4. Run `claude plugin validate --strict .`.
 5. Add a row to `skills/REGISTRY.md`.
 6. Write the CLI entry point in `skills/<new-name>/scripts/`.
 7. Run `npm test` — `check-versions.js` and `check-mcp-tool-sync.js` will catch mismatches.

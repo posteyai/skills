@@ -19,7 +19,7 @@
  * the refresh. It checks the two fields that go stale first.
  *
  *   node scripts/check-server-card.js
- *   SERVER_CARD_URL=https://dev.srvr.postey.ai/... node scripts/check-server-card.js
+ *   SERVER_CARD_URL=https://dev.mcp.postey.ai/... node scripts/check-server-card.js
  *
  * Exit codes: 0 = agrees, 1 = drift or unreachable. There is no skip path, and
  * adding one would restore the failure this script exists to prevent.
@@ -31,10 +31,25 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SNAPSHOT = path.join(ROOT, 'skills', 'postey', 'capability-snapshot.json');
 const CARD_URL =
-	process.env.SERVER_CARD_URL || 'https://srvr.postey.ai/.well-known/mcp/server-card.json';
+	process.env.SERVER_CARD_URL || 'https://mcp.postey.ai/.well-known/mcp/server-card.json';
+
+/**
+ * Tools the server registers but leaves off some tool listings, so the anonymous
+ * card cannot show them while the authenticated manifest (and the snapshot) do.
+ * Absent from the card is expected for these; the skills keep granting them.
+ * Each reason names the backend gate, so a change there has somewhere to land.
+ */
+const CONDITIONALLY_LISTED = {
+	link_cli:
+		'listed only to terminal coding agents (app/core/mcp/cli_link_clients.py, ' +
+		'CliLinkClientMiddleware); an anonymous card fetch is not one',
+	transcribe_video:
+		'listed only when the server host has the local transcription runtime ' +
+		'(app/core/mcp/tool_availability.py, transcription_available() in tools/video.py)',
+};
 
 /** Pure, so the tests can drive it against fixtures (F-046). */
-function compare(snapshot, card) {
+function compare(snapshot, card, conditional = CONDITIONALLY_LISTED) {
 	const problems = [];
 
 	const cardVersion = card?.serverInfo?.version;
@@ -56,7 +71,7 @@ function compare(snapshot, card) {
 	const inSnapshot = new Set(snapshot.tools ?? []);
 	const onServer = new Set(cardTools);
 
-	const gone = [...inSnapshot].filter((t) => !onServer.has(t)).sort();
+	const gone = [...inSnapshot].filter((t) => !onServer.has(t) && !conditional[t]).sort();
 	const missing = [...onServer].filter((t) => !inSnapshot.has(t)).sort();
 
 	if (gone.length) problems.push(`snapshot names tools the server does not serve: ${gone.join(', ')}`);
@@ -65,7 +80,7 @@ function compare(snapshot, card) {
 	return problems;
 }
 
-module.exports = { compare };
+module.exports = { compare, CONDITIONALLY_LISTED };
 
 if (require.main !== module) return;
 
@@ -76,6 +91,9 @@ if (require.main !== module) return;
 		const problems = compare(JSON.parse(fs.readFileSync(SNAPSHOT, 'utf8')), await res.json());
 
 		if (problems.length === 0) {
+			for (const [tool, why] of Object.entries(CONDITIONALLY_LISTED)) {
+				console.log(`  · '${tool}' may be absent from the card: ${why}`);
+			}
 			console.log('✓ capability-snapshot.json agrees with the live server card');
 			return;
 		}

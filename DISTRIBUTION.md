@@ -28,7 +28,7 @@ Layers 1–3 are done. Layer 4 is the whole opportunity.
 
 ## Layer 2 — tool (done, no action)
 
-- MCP endpoint: `https://srvr.postey.ai/mcp` (streamable-http).
+- MCP endpoint: `https://mcp.postey.ai/mcp` (streamable-http).
 - 31 tools — 28 via `@mcp.tool` in `postey-backend/app/core/mcp/tools/`, plus
   `file_manager` / `list_files` / `read_file` registered by `mcp.add_provider()` in
   `uploads.py`. Grepping only for `@mcp.tool` undercounts by 3.
@@ -38,11 +38,14 @@ Layers 1–3 are done. Layer 4 is the whole opportunity.
 
 ## Layer 3 — plugin (fixed here, needs release)
 
-The plugin previously shipped `SKILL.md` and a CLI but **no `.mcp.json`**, so installing it
-gave the agent instructions without the tools. `skills/postey/.mcp.json` now declares the
-remote server, so install and connect are one step. OAuth means no secret is embedded.
+The plugin previously shipped `SKILL.md` and a CLI but **no MCP server declaration**, so
+installing it gave the agent instructions without the tools. `skills/postey/.mcp.json` now
+declares the remote server, so install and connect are one step. OAuth means no secret is
+embedded. The hub keeps `skills/postey/.claude-plugin/plugin.json` because the Claude
+directory blocks a plugin folder without one; ClawHub gets a staged copy without either file
+(RUNBOOK Step 2).
 
-`claude plugin validate ./skills/postey` → passes.
+`claude plugin validate --strict .` → passes.
 
 ## Layer 4 — registries (the work)
 
@@ -55,8 +58,8 @@ remote server, so install and connect are one step. OAuth means no secret is emb
 | # | Target | Mechanism | Status |
 |---|---|---|---|
 | 1 | **Official MCP Registry** | `mcp-publisher` + `server.json`, DNS auth | ready — not submitted |
-| 2 | **ClawHub** | `clawhub skill publish` | ready — not submitted |
-| 3 | **Claude Code community marketplace** | in-app submission form | ready — not submitted |
+| 2 | **ClawHub** | `clawhub skill publish skills/<name>` (see RUNBOOK) | ready — not submitted (2026-10-25: `postey` slug free; Postiz listed) |
+| 3 | **Anthropic plugin directory** | developer portal `claude.ai/directory/manage` | ready — not submitted (2026-10-25: Postiz is in both `claude-plugins-official` and `-community`) |
 | 4 | **awesome-mcp-servers / mcpservers.org** | pull request | not submitted |
 | 5 | **Context7** | `context7.com/add-library` | not submitted |
 | 6 | **Glama** | auto-indexes public GitHub | passive |
@@ -77,19 +80,21 @@ does the most work.
 
 **2. ClawHub.** Embedding-based search, so `description` and `when_to_use` in `SKILL.md`
 matter more than keywords. Requires a GitHub account old enough to clear the upload gate.
-
-```
-clawhub login
-clawhub skill publish ./skills/postey --slug postey --name "Postey" --version 1.3.0
-```
+Each `skills/<name>/` folder is a plain skill folder, so `clawhub skill publish skills/<name>`
+works as is (exact commands in RUNBOOK Step 2). Never `clawhub sync --all`: it ignores
+`.clawhubignore` and would take the `template` slug. The web "Import from GitHub" also
+lists `templates/skill` and the `tests/fixtures/` skills; choose `skills/<name>` only.
 
 Publishes are held for automated scanning (VirusTotal + code-pattern analysis) before going live.
 
-**3. Claude Code community marketplace.** Individual authors submit at
-`platform.claude.com/plugins/submit`; Team/Enterprise orgs use
-`claude.ai/admin-settings/directory/submissions/plugins/new`. Approved plugins are pinned to
-a commit SHA and CI bumps the pin as we push, so this is submit-once. The public catalog
-syncs nightly, so expect a delay between approval and installability.
+**3. Anthropic plugin directory.** Submit from the developer portal at
+`claude.ai/directory/manage` (Submit new → Plugin bundle, plugin path `skills/postey`). That folder must keep
+`.claude-plugin/plugin.json` (the portal blocks it otherwise) and `.mcp.json`; see RUNBOOK Step 3. Needs
+a paid claude.ai plan and a connected GitHub account with push access. One submission per
+plugin folder; each new commit on the tracked branch is re-scanned, so raise `version` per
+release. Listing reaches claude.ai, Cowork and Claude Code (as `postey@synced`). Submit
+`mcp.postey.ai/mcp` as an MCP connector alongside it. `claude-plugins-official` takes no
+portal submissions.
 
 **4. awesome-mcp-servers.** A PR against the list that backs `mcpservers.org`. Postiz is
 listed there; we are not.
@@ -99,6 +104,12 @@ of guessing an API. No approval, no star minimum. Add their GitHub Action to re-
 
 **6. Glama.** Indexes public GitHub automatically — this repo being public is the whole
 requirement. Nothing to submit.
+
+**7. Grok Build plugin marketplace.** A PR to `xai-org/plugin-marketplace` adding one entry to
+`.grok-plugin/marketplace.json` that points at this repo pinned to a full commit SHA. Grok
+installs the whole repo: `.grok-plugin/plugin.json`, every `skills/*/SKILL.md`, and the root
+`.mcp.json`. To ship an update, bump the `sha` in that entry and rerun their
+`scripts/generate-plugin-index.py`; never open a second entry.
 
 ### Tier 2 — volume directories
 
@@ -121,7 +132,8 @@ agent visibility is the retrieval layer above, and it is already done.
 Neither Postiz nor Postly ships one. Revisit when a path is ratified; building the wrong
 one now is worse than waiting.
 
-`srvr.postey.ai/.well-known/oauth-protected-resource` returns 404. This *is* ratified
+`mcp.postey.ai/.well-known/oauth-protected-resource` returns 404 (the path-suffixed
+`/.well-known/oauth-protected-resource/mcp` returns 200). The bare path *is* ratified
 (RFC 9728) and some clients probe it to discover the auth server. OAuth works today without
 it, so it's a robustness fix rather than a blocker — worth doing in the backend, low priority.
 

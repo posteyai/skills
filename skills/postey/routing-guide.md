@@ -74,7 +74,8 @@ These operations have no CLI equivalent and **must** use MCP tools:
 
 - Every write — creating, updating, publishing, scheduling, deleting and tagging posts
 - `validate_post_content` — validate before creating a draft
-- `review_post` — virality coaching
+- `review_post` — virality coaching; returns a `job_id`
+- `get_review_status` — collect the `review_post` result by `job_id` (or `post_id`); repeat while `running`
 - Reading resources: `postey://accounts`, `postey://teams`, `postey://posts/{id}/content/{platform}`
 
 ## Layered Workflow (Correct Pattern)

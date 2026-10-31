@@ -7,6 +7,15 @@ const path = require('node:path');
 const { discoverSkills } = require('../scripts/lib/skills');
 
 const SKILLS_DIR = path.join(__dirname, '..', 'skills');
+const MARKETPLACE = path.join(__dirname, '..', '.claude-plugin', 'marketplace.json');
+
+// A skill folder carries no plugin.json (ClawHub refuses one), so the
+// marketplace entry is the plugin manifest.
+function loadEntry(name) {
+  const entry = JSON.parse(fs.readFileSync(MARKETPLACE, 'utf8')).plugins.find(p => p.name === name);
+  assert.ok(entry, `no marketplace entry named ${name}`);
+  return entry;
+}
 
 // Parsed inside the tests (not at module load) so a malformed pack.json fails
 // as a named assertion instead of killing the whole suite anonymously.
@@ -24,15 +33,23 @@ test('the repo has at least one skill to check', () => {
 });
 
 for (const { name, dir: ROOT } of skills) {
+  // Claude Code installs an entry's `dependencies` alongside the plugin, so a pack
+  // installed on its own still gets the hub (and its MCP server).
+  test(`${name}: marketplace dependencies match SKILL.md requires`, () => {
+    const plugin = loadEntry(name);
+    const fm = fs.readFileSync(path.join(ROOT, 'SKILL.md'), 'utf8').match(/^---\s*\n([\s\S]*?)\n---/)[1];
+    const block = fm.match(/^requires:\s*\n((?:[ \t]+-[^\n]*\n?)*)/m);
+    const requires = block ? [...block[1].matchAll(/-\s+(\S+)/g)].map(m => m[1]).sort() : [];
+    assert.deepStrictEqual([...(plugin.dependencies || [])].sort(), requires);
+  });
+
   test(`${name}: ships a pack.json (the fetch-install channel needs one)`, () => {
     assert.ok(fs.existsSync(path.join(ROOT, 'pack.json')), `skills/${name}/pack.json missing`);
   });
 
-  test(`${name}: pack version matches plugin.json and SKILL.md frontmatter`, () => {
+  test(`${name}: pack version matches the marketplace entry and SKILL.md frontmatter`, () => {
     const pack = loadPack(ROOT);
-    const plugin = JSON.parse(
-      fs.readFileSync(path.join(ROOT, '.claude-plugin', 'plugin.json'), 'utf8')
-    );
+    const plugin = loadEntry(name);
     assert.strictEqual(pack.version, plugin.version);
     const fm = fs.readFileSync(path.join(ROOT, 'SKILL.md'), 'utf8').match(/^version:\s*(\S+)/m);
     assert.ok(fm, 'SKILL.md must have a version: frontmatter line');
