@@ -74,11 +74,23 @@ challenge rather than GitHub auth.
 
 ## Step 2 — ClawHub
 
-Each `skills/<name>/` folder is a plain skill folder: no `.claude-plugin/`, no `.mcp.json`
-(the Claude Code plugin is defined by its entry in `.claude-plugin/marketplace.json`). So
-publish straight from the repo; no staging copy. `tests/plugin-layout.test.mjs` keeps it
-that way, because ClawHub refuses a folder holding a plugin manifest ("This looks like a
-plugin").
+Each pack folder (`skills/<name>/`) is a plain skill folder: no `.claude-plugin/`, no
+`.mcp.json` (its Claude Code plugin is defined by its entry in `.claude-plugin/marketplace.json`),
+so packs publish straight from the repo. ClawHub refuses a folder holding a plugin manifest
+("This looks like a plugin").
+
+The hub is different: `skills/postey/` keeps `.claude-plugin/plugin.json` and `.mcp.json`
+because the Claude directory (Step 3) blocks the plugin without them. Publish the hub from a
+staged copy with those two files removed:
+
+```bash
+stage="$(mktemp -d)/postey"
+cp -R skills/postey "$stage"
+rm -rf "$stage/.claude-plugin" "$stage/.mcp.json"
+# then run the publish below with "$stage" in place of "skills/$s"
+```
+
+`tests/plugin-layout.test.mjs` enforces both rules.
 
 ```bash
 npm i -g clawhub
@@ -146,12 +158,10 @@ Pre-flight — already passing, re-run after any edit:
 claude plugin validate --strict .
 ```
 
-`skills/postey` has no `plugin.json`: the plugin is defined by its marketplace entry so
-that the same folder can go to ClawHub. The portal therefore sees a manifest-less plugin
-folder (name from the folder, one skill, no bundled MCP server). That is why the connector
-below matters. The listing fields that used to live in `plugin.json` (`icon`,
-`documentationUrl`, `supportUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`) are kept under
-the entry's `metadata` in `marketplace.json`; enter them in the portal form.
+`skills/postey` must carry `.claude-plugin/plugin.json`: the portal's validation blocks a
+plugin folder without one ("No plugin.json" — this blocked 4213b0b and 65b0781 in Oct 2026,
+after the hub's manifest was removed for ClawHub). Keep it, and keep `.mcp.json` beside it so
+the plugin bundles the MCP server. ClawHub gets a staged copy instead (Step 2).
 
 Each scanned commit is checked again, so later releases need no new submission. Raise
 `version` with every release (`node scripts/set-version.mjs`), or the listing won't move. Also submit
