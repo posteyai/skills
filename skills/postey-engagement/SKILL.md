@@ -1,6 +1,6 @@
 ---
 name: postey-engagement
-version: 2.0.0
+version: 2.0.1
 description: >
   Read and reply to the comments your posts actually got, and see which
   automations are running, without sounding like a bot. Covers triage, tone,
