@@ -100,7 +100,7 @@ test('the shipped manifest passes', () => {
 
 test('it sits at the plugin root, beside .claude-plugin, and nowhere else', () => {
 	// Placement is the whole mechanism. A copy on the marketplace entry would also
-	// load and could drift silently; a repo-root one is read by nothing.
+	// load and could drift silently. The repo-root copy is Grok Build's; see below.
 	assert.ok(fs.existsSync(MANIFEST), '.mcp.json must be at skills/postey/, the plugin root');
 	assert.ok(
 		fs.existsSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json')),
@@ -108,7 +108,13 @@ test('it sits at the plugin root, beside .claude-plugin, and nowhere else', () =
 	);
 	assert.ok(hubEntry(), 'no marketplace entry with source ./skills/postey');
 	assert.ok(!hubEntry().mcpServers, 'the hub entry duplicates skills/postey/.mcp.json');
-	assert.ok(!fs.existsSync(path.join(ROOT, '.mcp.json')), 'a repo-root .mcp.json is read by nothing');
+});
+
+test('the repo-root .mcp.json Grok Build installs matches the hub one', () => {
+	// Grok Build installs the whole repo as one plugin and reads its servers from
+	// the repo root, so this is a second copy that must not drift.
+	const root = JSON.parse(fs.readFileSync(path.join(ROOT, '.mcp.json'), 'utf8'));
+	assert.deepStrictEqual(root.mcpServers, JSON.parse(fs.readFileSync(MANIFEST, 'utf8')).mcpServers);
 });
 
 test('a url with no type FAILS', () => {

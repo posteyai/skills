@@ -83,7 +83,7 @@ matter more than keywords. Requires a GitHub account old enough to clear the upl
 Each `skills/<name>/` folder is a plain skill folder, so `clawhub skill publish skills/<name>`
 works as is (exact commands in RUNBOOK Step 2). Never `clawhub sync --all`: it ignores
 `.clawhubignore` and would take the `template` slug. The web "Import from GitHub" also
-lists `skills/_template` and the `tests/fixtures/` skills; choose `skills/<name>` only.
+lists `templates/skill` and the `tests/fixtures/` skills; choose `skills/<name>` only.
 
 Publishes are held for automated scanning (VirusTotal + code-pattern analysis) before going live.
 
@@ -104,6 +104,12 @@ of guessing an API. No approval, no star minimum. Add their GitHub Action to re-
 
 **6. Glama.** Indexes public GitHub automatically — this repo being public is the whole
 requirement. Nothing to submit.
+
+**7. Grok Build plugin marketplace.** A PR to `xai-org/plugin-marketplace` adding one entry to
+`.grok-plugin/marketplace.json` that points at this repo pinned to a full commit SHA. Grok
+installs the whole repo: `.grok-plugin/plugin.json`, every `skills/*/SKILL.md`, and the root
+`.mcp.json`. To ship an update, bump the `sha` in that entry and rerun their
+`scripts/generate-plugin-index.py`; never open a second entry.
 
 ### Tier 2 — volume directories
 

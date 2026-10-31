@@ -22,8 +22,8 @@ import { readFileSync } from 'node:fs';
 const INTERACTIVE = [
 	{
 		name: 'skills-add-without-agent-skill-and-yes',
-		// -a and -y stop it prompting. -s stops it installing skills/_template as
-		// a second skill called "skill-name", which it does by default.
+		// -a and -y stop it prompting. -s stops it installing every pack alongside
+		// the hub, which it does by default.
 		test: (line) =>
 			/\bskills\s+add\b/.test(line) &&
 			!/--list\b/.test(line) &&
@@ -32,7 +32,7 @@ const INTERACTIVE = [
 				/(^|\s)(-s|--skill)\s/.test(line) &&
 				/(^|\s)(-y|--yes)(\s|$)/.test(line)
 			),
-		why: 'prompts, or installs the _template skill; pass -a <agent> -s postey -y'
+		why: 'prompts, or installs every pack; pass -a <agent> -s postey -y'
 	},
 	{
 		name: 'plugin-slash-command',

@@ -18,7 +18,7 @@ Index of all skills in this repository.
 
 ## Adding a New Skill
 
-1. Copy `_template/` to `<skill-name>/`
+1. Copy `../templates/skill/` to `<skill-name>/`
 2. Fill in `<skill-name>/SKILL.md` frontmatter and body
 3. Add a plugin entry to `../../.claude-plugin/marketplace.json` with `"strict": false` and `"dependencies": ["postey"]`. The entry is the plugin manifest; the skill folder gets no `.claude-plugin/` (ClawHub refuses one)
 4. Run `claude plugin validate --strict .` from the repo root

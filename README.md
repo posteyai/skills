@@ -144,13 +144,19 @@ Use the shell commands above rather than the `/plugin` slash commands. The slash
 npx -y skills add posteyai/skills -a <agent> -s postey -y
 ```
 
-All three flags matter. `-a` and `-y` stop the CLI prompting for scope, agent and skill, which hangs an unattended run. `-s postey` stops it also installing this repo's skill template as a second skill called `skill-name`. Run `npx -y skills add posteyai/skills --list` to print the ids. Hermes Agent is `hermes-agent`, not `hermes`.
+All three flags matter. `-a` and `-y` stop the CLI prompting for scope, agent and skill, which hangs an unattended run. `-s postey` installs the hub alone; the packs are opt-in. Run `npx -y skills add posteyai/skills --list` to print the ids. Hermes Agent is `hermes-agent`, not `hermes`.
 
 **Manual:**
 
 Clone this repository and copy `skills/postey/` into the directory your agent reads. That is `.claude/skills/` for Claude Code and `.agents/skills/` for roughly eighteen others, including Cursor, Codex, Gemini CLI, Copilot and opencode. Claude Code does not read `.agents/skills/`.
 
 </details>
+
+### Grok Build
+
+Type `/marketplace` in Grok Build, find **Postey** and press `i`. This installs the whole repo as one plugin: the hub, every pack, and the hosted MCP server from [`.mcp.json`](.mcp.json). Sign in with your Postey account on first connect.
+
+The plugin talks to two Postey hosts and nothing else: `https://mcp.postey.ai/mcp` (the MCP server, OAuth or `X-API-Key`) and `https://srvr.postey.ai` (the bundled CLI's API and OAuth endpoints, only when a skill runs it). See [Credentials](#credentials).
 
 ### Connect the MCP server
 

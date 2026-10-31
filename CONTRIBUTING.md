@@ -55,7 +55,7 @@ behaviour changes, bug fixes. Skip internal refactors and CI-only edits.
 ## Adding a skill
 
 Follow the checklist in `CLAUDE.md` under "Adding a New Skill". In short: copy
-`skills/_template/`, fill in the frontmatter, add a `plugins` entry to the marketplace
+`templates/skill/` to `skills/<name>/`, fill in the frontmatter, add a `plugins` entry to the marketplace
 (it is the plugin manifest: `strict: false`, plus `dependencies: ["postey"]` for a pack),
 add a `REGISTRY.md` row, then run `npm test` and `claude plugin validate --strict .`.
 Never add `.claude-plugin/` or `.mcp.json` inside a pack folder: ClawHub refuses it. The hub

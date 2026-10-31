@@ -96,7 +96,7 @@ for (const { name: skill, dir: skillDir } of skills) {
   // Every version place, as data. Each row is asserted the same way: declared
   // but unreadable is a failure, never a skip — that is how a place goes stale
   // with the gate green. `hubOnly` rows are keyed to the hub because that is the
-  // plugin Codex and Cursor install; a pack ships inside it, not as its own
+  // plugin Codex, Cursor and Grok install; a pack ships inside it, not as its own
   // listing. Keeping this a table (rather than a block per place) is what stops
   // a new place from being added to the writer and forgotten here.
   const errorsBefore = errors;
@@ -106,7 +106,7 @@ for (const { name: skill, dir: skillDir } of skills) {
     [`skills/${skill}/pack.json`, parsePackJsonVersion(path.join(skillDir, 'pack.json'))],
     ['skills/REGISTRY.md', parseRegistryVersion(path.join(skillsDir, 'REGISTRY.md'), skill)],
     // Two independent rules, kept independent: a badge belongs to whichever skill
-    // README_BADGES names, while the Codex and Cursor manifests always track the
+    // README_BADGES names, while the Codex, Cursor and Grok manifests always track the
     // hub. Deriving the second from the first is what let both rows switch off
     // together when the badge entry was the only thing turning them on.
     ...(README_BADGES[skill]
@@ -116,7 +116,7 @@ for (const { name: skill, dir: skillDir } of skills) {
       ? [[`skills/${skill}/.claude-plugin/plugin.json`, parsePluginJsonVersion(path.join(skillDir, '.claude-plugin', 'plugin.json'))]]
       : []),
     ...(isHub
-      ? ['.codex-plugin/plugin.json', '.cursor-plugin/plugin.json'].map((m) => [
+      ? ['.codex-plugin/plugin.json', '.cursor-plugin/plugin.json', '.grok-plugin/plugin.json'].map((m) => [
           m,
           parsePluginJsonVersion(path.join(ROOT, m)),
         ])

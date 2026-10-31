@@ -97,9 +97,9 @@ test('every real skill declares a schema-valid capabilities block', () => {
   assert.deepStrictEqual(validateDeclarations(skills, snap), []);
 });
 
-test('the _template capabilities block is commented out, so it parses as empty', () => {
+test('the template capabilities block is commented out, so it parses as empty', () => {
   assert.deepStrictEqual(
-    readCapabilities(path.join(ROOT, 'skills', '_template')),
+    readCapabilities(path.join(ROOT, 'templates', 'skill')),
     { owns: [], reads: [], prompts: [] }
   );
 });

@@ -51,9 +51,7 @@ describe('check-setup-doc', () => {
 		assert.deepEqual(checkSetupDoc(doc), []);
 	});
 
-	test('catches an install with no -s, which also installs the _template skill', () => {
-		// Verified by running it: without -s the CLI installs postey AND a skill
-		// called skill-name, taken from skills/_template.
+	test('catches an install with no -s, which installs every pack too', () => {
 		const doc = validDoc({ body: '```\nnpx -y skills add posteyai/skills -a claude-code -y\n```' });
 		assert.ok(rules(checkSetupDoc(doc)).includes('skills-add-without-agent-skill-and-yes'));
 	});

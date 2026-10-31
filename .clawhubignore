@@ -3,7 +3,7 @@
 # web "Import from GitHub" and `clawhub sync` do not, so pick skills/<name> there.
 
 # The starter template every new skill is copied from. It has no content.
-skills/_template/
+templates/
 
 # Repo tooling and CI, not shipped with any skill.
 scripts/
