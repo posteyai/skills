@@ -44,6 +44,14 @@ function edits(skill, version, root) {
 			apply: (s) => replaceOne(s, /^(version:\s*)(\S+)\s*$/m, `$1${version}`)
 		},
 		{
+			// Only the hub carries a plugin.json (the Claude directory needs one);
+			// packs stay plain skill folders for ClawHub.
+			file: path.join(skillDir, '.claude-plugin', 'plugin.json'),
+			what: 'plugin.json',
+			skip: skill !== 'postey',
+			apply: (s) => replaceOne(s, /("version":\s*")([^"]+)(")/, `$1${version}$3`)
+		},
+		{
 			file: path.join(root, '.claude-plugin', 'marketplace.json'),
 			what: 'marketplace.json',
 			apply: (s) => setMarketplaceVersion(s, skill, version)
