@@ -9,7 +9,7 @@
 [![Postey](https://img.shields.io/badge/Postey-postey.ai-3B9AF8)](https://postey.ai)
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-ai.postey%2Fpostey-6E56CF)](https://registry.modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.2.1-green.svg)]()
+[![Version](https://img.shields.io/badge/version-3.2.2-green.svg)]()
 
 </div>
 
