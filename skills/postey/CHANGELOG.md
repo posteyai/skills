@@ -4,6 +4,14 @@ All notable user-facing changes to the Postey skill and its CLI are documented h
 
 The format is based on Keep a Changelog.
 
+## 3.2.3
+
+**Muse Code support.** The plugin folder ships `.muse-plugin/plugin.json`, so Muse Code can install
+Postey from this repo: `muse plugins marketplace add postey https://github.com/posteyai/skills`,
+then `muse plugins install postey@postey` and `muse plugins approve postey`. It installs the hub
+skill and registers the Postey MCP server (`https://mcp.postey.ai/mcp`). The packs are not offered
+on Muse yet. Nothing changes for other agents.
+
 ## 3.2.2
 
 **Claude directory listing unblocked.** The plugin folder ships `.claude-plugin/plugin.json` and

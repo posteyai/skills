@@ -111,6 +111,14 @@ installs the whole repo: `.grok-plugin/plugin.json`, every `skills/*/SKILL.md`, 
 `.mcp.json`. To ship an update, bump the `sha` in that entry and rerun their
 `scripts/generate-plugin-index.py`; never open a second entry.
 
+**8. Muse Code.** No directory or submission: users add this repo as a Muse marketplace
+(`muse plugins marketplace add postey https://github.com/posteyai/skills`) and Muse reads
+`.claude-plugin/marketplace.json`. For each entry it needs a plugin manifest it accepts, so the
+hub carries `skills/postey/.muse-plugin/plugin.json` (Muse rejects the Claude manifest's http MCP
+server). The packs are skipped: a pack folder cannot hold a manifest and stay publishable on
+ClawHub. A root `marketplace.json` is not an option yet: Muse reads it first but rejects every
+`install.transport` value (probed on Muse 1.4.14). Validate with `muse plugins validate skills/postey`.
+
 ### Tier 2 — volume directories
 
 Submit after Tier 1 lands. Each is a form; none is load-bearing.

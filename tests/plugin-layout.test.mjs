@@ -8,7 +8,9 @@
 // (claude.ai/directory/manage) validates the submitted plugin path and blocks a
 // folder with no .claude-plugin/plugin.json ("No plugin.json"), so the hub
 // carries plugin.json and .mcp.json, and its entry is NOT strict: false.
-// ClawHub publishes the hub from a staged copy with those two files removed
+// It also carries .muse-plugin/plugin.json: Muse Code rejects the Claude
+// manifest's http MCP server, and reads its own manifest first.
+// ClawHub publishes the hub from a staged copy with those three files removed
 // (RUNBOOK Step 2).
 
 import { test } from 'node:test';
@@ -23,14 +25,15 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 // Mirrors looksLikePluginFolder() in the clawhub CLI, plus .mcp.json, which
 // ClawHub's package detection counts as a bundle marker.
 const HUB = 'postey';
-// The two files the Claude directory needs at the hub's plugin root.
-const HUB_CLAUDE_MANIFESTS = ['.claude-plugin/plugin.json', '.mcp.json'];
+// The files the Claude directory and Muse Code need at the hub's plugin root.
+const HUB_CLAUDE_MANIFESTS = ['.claude-plugin/plugin.json', '.mcp.json', '.muse-plugin/plugin.json'];
 
 const PLUGIN_MARKERS = [
 	'openclaw.plugin.json',
 	'.claude-plugin/plugin.json',
 	'.codex-plugin/plugin.json',
 	'.cursor-plugin/plugin.json',
+	'.muse-plugin/plugin.json',
 	'.mcp.json'
 ];
 
@@ -50,7 +53,7 @@ export function checkPluginLayout(root) {
 		if (isHub) {
 			for (const m of HUB_CLAUDE_MANIFESTS) {
 				if (!fs.existsSync(path.join(dir, m))) {
-					problems.push(`skills/${name}/${m} is missing: the Claude directory blocks the hub without it`);
+					problems.push(`skills/${name}/${m} is missing: the hub cannot be listed or installed without it`);
 				}
 			}
 		}
@@ -154,7 +157,7 @@ test('the hub with plugin.json, .mcp.json and a strict entry passes', () => {
 });
 
 for (const missing of HUB_CLAUDE_MANIFESTS) {
-	test(`the hub without ${missing} FAILS (the Claude directory blocks it)`, () => {
+	test(`the hub without ${missing} FAILS (the hub cannot be listed or installed)`, () => {
 		const problems = checkPluginLayout(hubFixture({ manifests: HUB_CLAUDE_MANIFESTS.filter((m) => m !== missing) }));
 		assert.ok(problems.some((p) => p.includes(missing)), problems.join('\n'));
 	});

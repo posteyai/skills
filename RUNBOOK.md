@@ -80,13 +80,14 @@ so packs publish straight from the repo. ClawHub refuses a folder holding a plug
 ("This looks like a plugin").
 
 The hub is different: `skills/postey/` keeps `.claude-plugin/plugin.json` and `.mcp.json`
-because the Claude directory (Step 3) blocks the plugin without them. Publish the hub from a
-staged copy with those two files removed:
+because the Claude directory (Step 3) blocks the plugin without them, and `.muse-plugin/plugin.json`
+because Muse Code rejects the Claude manifest's http MCP server. Publish the hub from a staged
+copy with those three files removed:
 
 ```bash
 stage="$(mktemp -d)/postey"
 cp -R skills/postey "$stage"
-rm -rf "$stage/.claude-plugin" "$stage/.mcp.json"
+rm -rf "$stage/.claude-plugin" "$stage/.muse-plugin" "$stage/.mcp.json"
 # then run the publish below with "$stage" in place of "skills/$s"
 ```
 

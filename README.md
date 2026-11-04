@@ -9,7 +9,7 @@
 [![Postey](https://img.shields.io/badge/Postey-postey.ai-3B9AF8)](https://postey.ai)
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-ai.postey%2Fpostey-6E56CF)](https://registry.modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.2.2-green.svg)]()
+[![Version](https://img.shields.io/badge/version-3.2.3-green.svg)]()
 
 </div>
 
@@ -151,6 +151,16 @@ All three flags matter. `-a` and `-y` stop the CLI prompting for scope, agent an
 Clone this repository and copy `skills/postey/` into the directory your agent reads. That is `.claude/skills/` for Claude Code and `.agents/skills/` for roughly eighteen others, including Cursor, Codex, Gemini CLI, Copilot and opencode. Claude Code does not read `.agents/skills/`.
 
 </details>
+
+### Muse Code
+
+```
+muse plugins marketplace add postey https://github.com/posteyai/skills
+muse plugins install postey@postey
+muse plugins approve postey
+```
+
+This installs the hub skill and the hosted MCP server (`https://mcp.postey.ai/mcp`). Muse holds a third-party plugin's MCP server for review until you approve it; sign in with your Postey account on first connect. The packs are not offered on Muse: each pack folder stays manifest-free for ClawHub, and Muse needs a manifest per plugin.
 
 ### Grok Build
 

@@ -171,3 +171,50 @@ test('the plugin that installs is the one that registers the server', () => {
 	assert.strictEqual(hubEntry().name, 'postey');
 	assert.ok(fs.existsSync(MANIFEST));
 });
+
+// Muse Code rejects the http server in .mcp.json ("non-stdio-transport") and
+// reads skills/postey/.muse-plugin/plugin.json instead, which declares the same
+// server in its own shape. That makes it a FOURTH copy of the address, so it is
+// held to the one .mcp.json registers.
+export function checkMuseManifest(museText, mcpText) {
+	const problems = [];
+	let muse;
+	try {
+		muse = JSON.parse(museText);
+	} catch (err) {
+		return [`Muse manifest is not valid JSON: ${err.message}`];
+	}
+	const servers = muse.capabilities?.mcpServers ?? [];
+	if (servers.length !== 1) return [`Muse manifest declares ${servers.length} MCP servers, expected 1`];
+	const [server] = servers;
+	const expected = JSON.parse(mcpText).mcpServers.postey.url;
+	if (server.id !== 'postey') problems.push(`Muse server is named '${server.id}', not 'postey'`);
+	if (server.transport !== 'http') problems.push(`Muse server transport is '${server.transport}', not 'http'`);
+	if (server.url !== expected) problems.push(`Muse server url ${server.url} != .mcp.json ${expected}`);
+	if (!(muse.capabilities?.skills ?? []).some((s) => s.id === 'postey' && s.path === 'SKILL.md')) {
+		problems.push('Muse manifest does not ship the hub skill (postey → SKILL.md)');
+	}
+	return problems;
+}
+
+const MUSE = path.join(PLUGIN_ROOT, '.muse-plugin', 'plugin.json');
+const museWith = (server) =>
+	JSON.stringify({
+		capabilities: { skills: [{ id: 'postey', path: 'SKILL.md' }], mcpServers: [server] }
+	});
+
+test('the shipped Muse manifest registers the server .mcp.json does', () => {
+	assert.deepStrictEqual(checkMuseManifest(fs.readFileSync(MUSE, 'utf8'), shippedManifestText()), []);
+});
+
+test('a Muse manifest pointing at another address FAILS', () => {
+	const problems = checkMuseManifest(
+		museWith({ id: 'postey', transport: 'http', url: 'https://mcp.postey.ai/old' }),
+		shippedManifestText()
+	);
+	assert.ok(problems.some((p) => /!= \.mcp\.json/.test(p)));
+});
+
+test('a Muse manifest with no server FAILS', () => {
+	assert.match(checkMuseManifest(JSON.stringify({ capabilities: { mcpServers: [] } }), shippedManifestText())[0], /0 MCP servers/);
+});
