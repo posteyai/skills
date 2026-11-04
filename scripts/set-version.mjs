@@ -52,6 +52,14 @@ function edits(skill, version, root) {
 			apply: (s) => replaceOne(s, /("version":\s*")([^"]+)(")/, `$1${version}$3`)
 		},
 		{
+			// Muse Code reads the hub's native manifest ahead of plugin.json, because
+			// it rejects the Claude manifest's http MCP server.
+			file: path.join(skillDir, '.muse-plugin', 'plugin.json'),
+			what: '.muse-plugin/plugin.json',
+			skip: skill !== 'postey',
+			apply: (s) => replaceOne(s, /("version":\s*")([^"]+)(")/, `$1${version}$3`)
+		},
+		{
 			file: path.join(root, '.claude-plugin', 'marketplace.json'),
 			what: 'marketplace.json',
 			apply: (s) => setMarketplaceVersion(s, skill, version)

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "name": "postey",
+  "displayName": "Postey",
+  "version": "3.2.3",
+  "description": "Draft, schedule and publish social posts across X, LinkedIn, Instagram, TikTok, YouTube, Threads, Bluesky, Facebook and Pinterest through Postey's hosted MCP server. One draft per network against each one's real limits; nothing publishes until you approve.",
+  "compat": {
+    "source": "native",
+    "manifestDir": ".muse-plugin"
+  },
+  "capabilities": {
+    "skills": [
+      {
+        "id": "postey",
+        "path": "SKILL.md"
+      }
+    ],
+    "commands": [],
+    "hooks": [],
+    "mcpServers": [
+      {
+        "id": "postey",
+        "transport": "http",
+        "url": "https://mcp.postey.ai/mcp"
+      }
+    ],
+    "reminders": []
+  }
+}

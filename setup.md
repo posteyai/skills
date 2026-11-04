@@ -28,7 +28,7 @@ Determine the operating system from your session context. If it is unavailable, 
 `uname -s` on macOS or Linux. Run `$env:OS` in Windows PowerShell.
 
 Determine which agent you are. This document names Claude Code, Claude Desktop,
-Cursor, Codex CLI, Windsurf, Gemini CLI, VS Code, Hermes Agent, Cline, Roo Code,
+Cursor, Codex CLI, Windsurf, Gemini CLI, VS Code, Hermes Agent, Muse Code, Cline, Roo Code,
 Amp, opencode, Zed, Goose and Kiro. If you are none of these, use the generic path
 in Step 2.
 
@@ -204,6 +204,7 @@ below by hand.
 | Hermes Agent | See the three `hermes config set` calls below. No `mcp add` option writes `skip_preflight` |
 | VS Code | `code --add-mcp '{"name":"postey","type":"http","url":"https://mcp.postey.ai/mcp"}'` |
 | Amp | `amp mcp add postey https://mcp.postey.ai/mcp` |
+| Muse Code | None. The plugin in Step 4 registers the server; `muse plugins approve postey` enables it |
 
 `claude mcp add` is not idempotent. A second run fails with `already exists`. Treat
 that message as success. `codex mcp add` updates in place and is safe to repeat.
@@ -462,6 +463,16 @@ claude plugin marketplace add posteyai/skills
 claude plugin install postey@postey-skills
 ```
 
+**Muse Code.** This path installs the hub skill and the server together. Muse holds a
+third-party plugin's server for review, so the third command is required. The packs are not
+offered on Muse.
+
+```
+muse plugins marketplace add postey https://github.com/posteyai/skills
+muse plugins install postey@postey
+muse plugins approve postey
+```
+
 **Hermes Agent.** Its identifier is `hermes-agent`, not `hermes`.
 
 ```
@@ -625,6 +636,7 @@ CLI, Windsurf, Zed, Amp and Claude Code.
 | Windsurf | `.windsurf/rules/postey.md` |
 | Hermes Agent | `HERMES.md`. Hermes reads the first match of `HERMES.md`, `AGENTS.md`, then `CLAUDE.md` |
 | Codex CLI | `AGENTS.md` |
+| Muse Code | `AGENTS.md`, or `CLAUDE.md` |
 | opencode | `AGENTS.md` |
 | Kiro | `.kiro/steering/postey.md` |
 | Cline | `.clinerules`. Cline does not read `AGENTS.md` |
