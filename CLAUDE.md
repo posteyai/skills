@@ -40,6 +40,8 @@ skills/  (repo: posteyai/skills)
 │   ├── cross-skill-links.test.js — reference gate: leak/dangling/history cases
 │   ├── fixtures/              — synthetic skill trees for the two suites above
 │   └── pack-manifest.test.js  — pack.json completeness + version + tag-pinned rawBase, per skill
+├── claude-directory/
+│   └── postey/                — The Claude directory plugin: markdown only, MCP for everything (see Multi-Skill Conventions)
 ├── templates/
 │   └── skill/                 — Starter template for new skills (copy and fill in). Kept out of skills/ so whole-repo installers (Grok, Codex) don't ship it
 └── skills/
@@ -66,6 +68,7 @@ skills/  (repo: posteyai/skills)
 
 - **Each skill is self-contained** in its `skills/<name>/` directory — no runtime cross-dependencies between skills.
 - **Each pack folder is a plain skill folder** — no `.claude-plugin/`, no `.mcp.json`. ClawHub refuses a folder that holds a plugin manifest. A pack's Claude Code plugin is defined entirely by its entry in `.claude-plugin/marketplace.json` (`strict: false`, `dependencies: ["postey"]`). **The hub is the exception:** `skills/postey/` carries `.claude-plugin/plugin.json` and `.mcp.json`, because the Claude directory blocks a submitted plugin folder with no `plugin.json`; its entry is not `strict: false` and carries no `mcpServers`. It also carries `.muse-plugin/plugin.json`, because Muse Code rejects the Claude manifest's http MCP server and reads its own manifest first. ClawHub gets the hub from a staged copy without those three files (RUNBOOK Step 2). `tests/plugin-layout.test.mjs` enforces all of this.
+- **The Claude directory gets `claude-directory/postey/`, not the hub.** Postey is not a Verified organization there, and the directory refuses scripts, `allowed-tools` beyond Read/Grep/Glob/LS, and frontmatter keys outside its list from anyone else. That folder ships only markdown, JSON and the icon, does everything through the MCP server, and has its own version. Its `references/` are byte-identical copies of the hub's craft references: edit the hub, then copy. `tests/claude-directory-plugin.test.mjs` enforces all of this.
 - **Shared dev tooling** lives in `scripts/` at the repo root (CI checks only, never runtime code).
 - **Git tags** use the format `skills/{name}/vX.Y.Z` (e.g. `skills/postey/v1.2.0`).
 - **Version must be consistent** across every place `scripts/set-version.mjs` writes (see "When Editing the Skill or CLI"). The CI `check-versions.js` script enforces this.
