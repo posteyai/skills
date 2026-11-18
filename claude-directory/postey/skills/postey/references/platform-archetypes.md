@@ -31,7 +31,7 @@ the `postey://platform-limits` MCP resource; the numbers here are working target
 - **Archetype:** native creator voice with a comment-mechanic hook: "Comment 'WORD' and I'll send you the guide." If the video has a spoken hook, that spoken line becomes the first line of the caption.
 - **Structure:** comment-mechanic hook → one-line setup ("Most people don't realize you can...") → 3-step numbered body → close ("That's it. [Outcome]." + "Follow for more [topic]") → hashtag block.
 - **Hashtags:** 5-10, mixing broad and specific.
-- **Length:** 2,200 char limit (rarely a constraint). Reels have a hard 90-second video maximum; vertical 9:16 performs best.
+- **Length:** 2,200 char limit (rarely a constraint). Reels run 3 seconds to 15 minutes (Stories 60 seconds); vertical 9:16 performs best.
 
 ### TikTok
 
