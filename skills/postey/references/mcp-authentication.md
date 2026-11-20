@@ -70,12 +70,13 @@ comments:read      comments:edit      comments:delete
 These scope strings decide **what the consent screen offers**, not what the grant stores.
 A grant issued by the consent bridge always persists the full permission matrix —
 resource × verb × account or team — so a grant is narrower than its scope list whenever
-the user restricted it to particular accounts. Read the effective answer from a `403` or
-`insufficient_scope` on a real call; do not infer it from the scopes you asked for.
+the user restricted it to particular accounts. When grants are enforced, an MCP denial
+is a `ToolError` with code `PERMISSION_DENIED` inside an HTTP 200 response. Read the tool
+error on a real call; do not infer access from the scopes you asked for or HTTP status alone.
 
 **Installed packs do not widen a grant.** The scope list is the server's and is fixed.
 Installing `postey-analytics` does not add the analytics scope to a token that was granted
-without it. A pack whose calls all answer `403` is an auth problem, not a missing install.
+without it. Calls returning `PERMISSION_DENIED` need an auth fix, not another pack install.
 
 ---
 
@@ -108,8 +109,8 @@ export POSTEY_API_KEY=<the key>
 { "headers": { "X-API-Key": "<the key>" } }
 ```
 
-`POST /v1/keys` mints one over the API, but it authenticates the caller first, so it
-helps a client that already has a credential and not one that is trying to get its first.
+`POST /v1/keys` requires a signed-in browser session. MCP OAuth, agent-token and API-key
+callers receive `403`; holding one of those credentials does not authorize key creation.
 
 **The same key authenticates the CLI.** The hub ships `scripts/postey.js`, which reads
 `POSTEY_API_KEY` first, then `POSTEY_AUTH_TOKEN`, then a stored OAuth session. Setting
@@ -129,25 +130,20 @@ a secret. The store holds it in plain text; if it leaks, revoke it and create an
 
 An older headless install may hold an agent token instead, starting with `pat_`, sent as
 `Authorization: Bearer <token>`. The app no longer offers these and an MCP key replaces
-them, but the server still accepts every token already issued.
+them, but the server still accepts valid tokens already issued.
 
-Two mint paths remain on the API, and **both authenticate the caller first**:
+Agent-token creation requires a signed-in **browser session**. Both endpoints below
+reject MCP OAuth (`mcp_oauth`), agent-token (`agent_token`) and API-key (`api_key`)
+callers with `403`:
 
 | Endpoint | Needs | Lifetime |
 |---|---|---|
-| `POST /v1/auth/mcp/agent-tokens` | an existing grant of the caller's, from the browser consent flow | 90 days |
-| `POST /v1/auth/mcp/self-issued-agents` | nothing but the caller's own session — it creates the grant too | does not expire |
+| `POST /v1/auth/mcp/agent-tokens` | a signed-in browser session and an existing grant of the caller's from browser consent | 90 days |
+| `POST /v1/auth/mcp/self-issued-agents` | a signed-in browser session — it creates the grant too | does not expire |
 
-The second exists because a token needs a grant and grants only came from a consent
-screen the browser-less agent cannot render, which left the credential unreachable on a
-fresh account. It is re-runnable: the client id is derived from the agent name, so
-connecting the same agent again updates its grant instead of adding a duplicate row to
-the user's agent list.
-
-[`setup.md`](../../../setup.md) Step 3 says a lapsed `pat_` token has "no way to mint a
-replacement". That is wrong — both endpoints above still mint. What is true is that
-neither helps the client whose only credential just expired, because both need a session
-it no longer has.
+A headless client cannot use its agent token or MCP OAuth grant to mint a replacement.
+If its token expires or is revoked, follow [API key](#api-key): the user creates an MCP
+key in the signed-in app and hands it over, as [`setup.md`](../../../setup.md) Step 3 says.
 
 Both tokens inherit their grant's scopes and die when that grant is revoked. Revoking the
 grant kills every key under it.
