@@ -4,6 +4,13 @@ All notable user-facing changes to the Postey skill and its CLI are documented h
 
 The format is based on Keep a Changelog.
 
+## 3.2.4
+
+**Authentication guidance matches browser-session requirements.** API-key and agent-token
+creation require a signed-in browser session; headless clients must ask the user for an MCP
+key. Enforced MCP grant denials are documented as `PERMISSION_DENIED` tool errors inside
+HTTP 200 responses.
+
 ## 3.2.3
 
 **Muse Code support.** The plugin folder ships `.muse-plugin/plugin.json`, so Muse Code can install
