@@ -4,6 +4,13 @@ All notable user-facing changes to the Postey skill and its CLI are documented h
 
 The format is based on Keep a Changelog.
 
+## 3.2.5
+
+**Large uploads go straight to S3.** `media:upload` for files over 50 MB now sends each chunk
+directly to S3 with a presigned URL and reports its ETag to the API, instead of streaming 16 MB
+chunks through the backend. Command usage and output are unchanged. Needs a backend that accepts
+`/media/chunked/init/direct` with `doc_id=0`.
+
 ## 3.2.4
 
 **Authentication guidance matches browser-session requirements.** API-key and agent-token
