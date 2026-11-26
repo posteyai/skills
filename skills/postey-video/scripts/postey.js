@@ -454,34 +454,29 @@ async function uploadFileChunked(filePath, platform, mimeType) {
 
   process.stderr.write(`[upload] ${filename} (${(fileSize / 1024 / 1024).toFixed(1)} MB) → ${platform}\n`);
 
-  // 1. Init session
-  const initRes = await fetch(`${API_BASE}/media/chunked/init`, {
+  // 1. Init a direct-to-S3 session (doc_id 0: no document yet)
+  const initRes = await fetch(`${API_BASE}/media/chunked/init/direct`, {
     method: "POST",
     headers: { [auth.header]: auth.value, "Content-Type": "application/json" },
-    body: JSON.stringify({ filename, file_size: fileSize, platform: mediaPlatform }),
+    body: JSON.stringify({ filename, file_size: fileSize, platform: mediaPlatform, doc_id: 0 }),
   });
   if (!initRes.ok) {
     const errData = await initRes.json().catch(() => ({}));
     error(`HTTP ${initRes.status}`, { response: errData });
   }
-  const { upload_id, chunk_size, total_chunks } = await initRes.json();
+  const { upload_id, chunk_size, total_chunks, presigned_urls } = await initRes.json();
 
   process.stderr.write(`[upload] ${total_chunks} chunks × ${(chunk_size / 1024).toFixed(0)} KB (id: ${upload_id})\n`);
 
-  // 2. Upload chunks in parallel (4 concurrent, 3 retries with backoff)
+  // 2. PUT each chunk straight to S3, then report its ETag to the backend
+  //    (4 concurrent, 3 retries with backoff)
   const CONCURRENCY = 4;
   const MAX_RETRIES = 3;
   let completed = 0;
   let lastMilestone = -1;
   const fd = fs.openSync(filePath, "r");
 
-  async function uploadChunk(i) {
-    const start = i * chunk_size;
-    const end = Math.min(start + chunk_size, fileSize) - 1;
-    const chunkLen = end - start + 1;
-    const buf = Buffer.alloc(chunkLen);
-    fs.readSync(fd, buf, 0, chunkLen, start);
-
+  async function withRetries(i, step) {
     let lastErr;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       if (attempt > 0) {
@@ -490,34 +485,46 @@ async function uploadFileChunked(filePath, platform, mimeType) {
         await new Promise((r) => setTimeout(r, delay));
       }
       try {
-        const form = new FormData();
-        form.append("file", new Blob([buf], { type: mimeType }), filename);
-        const patchRes = await fetch(`${API_BASE}/media/chunked/${upload_id}`, {
-          method: "PATCH",
-          headers: {
-            [auth.header]: auth.value,
-            "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-          },
-          body: form,
-        });
-        if (!patchRes.ok) {
-          const errData = await patchRes.json().catch(() => ({}));
-          lastErr = { status: patchRes.status, response: errData };
-          continue; // retry on HTTP error too
-        }
-        completed++;
-        const pct = Math.floor((completed / total_chunks) * 100);
-        const milestone = Math.floor(pct / 25) * 25;
-        if (milestone > lastMilestone) {
-          lastMilestone = milestone;
-          process.stderr.write(`[upload] ${pct}% (${completed}/${total_chunks} chunks)\n`);
-        }
-        return; // success
+        const res = await step();
+        if (res.ok) return res;
+        const errData = await res.json().catch(() => ({}));
+        lastErr = { status: res.status, response: errData }; // retry on HTTP error too
       } catch (e) {
         lastErr = { message: e.message };
       }
     }
     error(`Chunk ${i + 1} failed after ${MAX_RETRIES} retries`, { detail: lastErr });
+  }
+
+  async function uploadChunk(i) {
+    const part = presigned_urls.find((u) => u.part_number === i + 1);
+    if (!part || !part.upload_url) error(`No presigned URL for chunk ${i + 1}`);
+    const start = i * chunk_size;
+    const end = Math.min(start + chunk_size, fileSize) - 1;
+    const chunkLen = end - start + 1;
+    const buf = Buffer.alloc(chunkLen);
+    fs.readSync(fd, buf, 0, chunkLen, start);
+
+    // No Authorization and no custom headers: the presigned URL is the credential.
+    const putRes = await withRetries(i, () => fetch(part.upload_url, { method: "PUT", body: buf }));
+    const etag = putRes.headers.get("ETag")?.replace(/"/g, "");
+    if (!etag) error(`No ETag received for chunk ${i + 1}`);
+
+    await withRetries(i, () =>
+      fetch(`${API_BASE}/media/chunked/${upload_id}/progress`, {
+        method: "PATCH",
+        headers: { [auth.header]: auth.value, "Content-Type": "application/json" },
+        body: JSON.stringify({ part_number: i + 1, etag }),
+      }),
+    );
+
+    completed++;
+    const pct = Math.floor((completed / total_chunks) * 100);
+    const milestone = Math.floor(pct / 25) * 25;
+    if (milestone > lastMilestone) {
+      lastMilestone = milestone;
+      process.stderr.write(`[upload] ${pct}% (${completed}/${total_chunks} chunks)\n`);
+    }
   }
 
   try {

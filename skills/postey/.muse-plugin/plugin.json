@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "name": "postey",
   "displayName": "Postey",
-  "version": "3.2.4",
+  "version": "3.2.5",
   "description": "Draft, schedule and publish social posts across X, LinkedIn, Instagram, TikTok, YouTube, Threads, Bluesky, Facebook and Pinterest through Postey's hosted MCP server. One draft per network against each one's real limits; nothing publishes until you approve.",
   "compat": {
     "source": "native",
